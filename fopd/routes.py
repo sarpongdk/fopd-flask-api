@@ -6,6 +6,9 @@ from fopd.models import Teacher, Student, Course, Experiment, Assignment, Assign
 import uuid, datetime
 
 
+ERROR_CODE = 400
+SUCCESS_CODE = 200
+
 ### Student
 
 @app.route('/api/student/<student_id>', methods = ['DELETE'])
@@ -19,12 +22,12 @@ def delete_student_account(student_id):
         return jsonify({
             'status': 'success',
             'message': f'Account id: `{student_id}` has been deleted'
-        }), 200
+        }), SUCCESS_CODE
     else:
         return jsonify({
             'status': 'fail',
             'message': f'Account id: {student_id} does not exist'
-        }), 400
+        }), ERROR_CODE
 
 @app.route('/api/student/teacher/<teacher_id>', methods = ['GET'])
 def get_all_students_by_teacher(teacher_id):
@@ -35,7 +38,7 @@ def get_all_students_by_teacher(teacher_id):
         return jsonify({
             'status': 'fail',
             'message': f'Account id `{teacher_id} `does not exist'
-        }), 400
+        }), ERROR_CODE
     
     # format output
     output = []
@@ -58,7 +61,7 @@ def get_all_students_by_teacher(teacher_id):
             'username': teacher.username,
             'public_id': teacher.public_id
         }
-    }), 200
+    }), SUCCESS_CODE
 
 
 @app.route('/api/student/<student_id>', methods = ['GET'])
@@ -71,7 +74,7 @@ def get_student_by_id(student_id):
             'status': 'fail',
             'message': f'Account id `{student_id}` does not exist',
             'student': {}
-        }), 400
+        }), ERROR_CODE
 
     return jsonify({
         'status': 'message',
@@ -87,13 +90,20 @@ def get_student_by_id(student_id):
                 'id': student.teacher.public_id  
             }
         }
-    }), 200
+    }), SUCCESS_CODE
 
 
 @app.route('/api/auth/register/student', methods = ['POST'])
 def register_student_account():
     """create stident account"""
     account_info = request.json
+
+    if not account_info:
+        return jsonify({
+            'status': 'fail',
+            'message': 'No account information provided'
+        }), ERROR_CODE
+
     username = account_info['username']
     password = account_info['password']
     fname = account_info.get('fname', 'No name')
@@ -108,7 +118,7 @@ def register_student_account():
         return jsonify({
             'status': 'fail',
             'message': 'Unable to create account'
-        }), 400
+        }), ERROR_CODE
 
     # check if username is uniquer under professor
     existing_student = Student.query.filter_by(username = username).first()
@@ -116,7 +126,7 @@ def register_student_account():
         return jsonify({
             'status': 'fail',
             'message': 'Username already exists under another student'
-        }), 400
+        }), ERROR_CODE
 
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
@@ -142,20 +152,27 @@ def register_student_account():
             'status': 'success',
             'message': 'Successfully created',
             'student': output
-        }), 200
+        }), SUCCESS_CODE
     except Exception as e:
         print(e)
         return jsonify({
             'status': 'fail',
             'message': 'Unable to create account',
             'student': {}
-        }), 400
+        }), ERROR_CODE
 
 
 @app.route('/api/account/student/<student_id>', methods = ['PUT', 'POST'])
 def update_student_account(student_id):
     """update existing student account"""
     update_info = request.json
+
+    if not update_info:
+        return jsonify({
+            'status': 'fail',
+            'message': 'No account information provided'
+        }), ERROR_CODE
+
     username = update_info['username']
     password = update_info['password']
     fname = update_info.get('fname', 'No name')
@@ -168,7 +185,7 @@ def update_student_account(student_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     if teacher_username and teacher_username != student.teacher.username:
         new_teacher = Teacher.query.filter_by(username = username).first()
@@ -177,7 +194,7 @@ def update_student_account(student_id):
             return jsonify({
                 'status': 'fail',
                 'message': 'Account does not exist'
-            }), 400
+            }), ERROR_CODE
 
         student.teacher = new_teacher
 
@@ -200,13 +217,13 @@ def update_student_account(student_id):
             'status': 'success',
             'message': 'Successfully created',
             'student': output
-        }), 200
+        }), SUCCESS_CODE
     except Exception as e:
         print(e)
         return jsonify({
             'status': 'fail',
             'message': 'Unable to update account'
-        }), 400
+        }), ERROR_CODE
 
 ### Teacher
 
@@ -229,7 +246,7 @@ def get_all_teachers():
         'status': 'success',
         'length': len(output),
         'teachers_list': output
-    }), 200
+    }), SUCCESS_CODE
 
 @app.route('/api/teacher/<teacher_id>', methods = ['GET'])
 def get_teacher_by_id(teacher_id):
@@ -251,13 +268,20 @@ def get_teacher_by_id(teacher_id):
     return jsonify({
         'status': 'success',
         'teacher': output
-    }), 200
+    }), SUCCESS_CODE
 
 
 @app.route('/api/account/teacher/<teacher_id>', methods = ['PUT', 'POST'])
 def update_teacher_account(teacher_id):
     """update teacher account"""
     update_info = request.json
+
+    if not update_info:
+        return jsonify({
+            'status': 'fail',
+            'message': 'No account information provided'
+        }), ERROR_CODE
+
     username = update_info['username']
     password = update_info['password']
     fname = update_info.get('fname', 'No name')
@@ -269,7 +293,7 @@ def update_teacher_account(teacher_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     # update teacher account
     teacher.username = username
@@ -290,19 +314,26 @@ def update_teacher_account(teacher_id):
             'status': 'success',
             'message': 'Successfully created',
             'teacher': output
-        }), 200
+        }), SUCCESS_CODE
     except Exception as e:
         print(e)
         return jsonify({
             'status': 'fail',
             'message': 'Unable to update account'
-        }), 400
+        }), ERROR_CODE
 
 
 @app.route('/api/auth/register/teacher', methods = ['POST'])
 def register_teacher_account():
     """create teacher account"""
     account_info = request.json
+
+    if not account_info:
+        return jsonify({
+            'status': 'fail',
+            'message': 'No account information provided'
+        }), ERROR_CODE
+
     username = account_info['username']
     password = account_info['password']
     fname = account_info.get('fname', 'No name')
@@ -316,7 +347,7 @@ def register_teacher_account():
         return jsonify({
             'status': 'fail',
             'message': 'Username already exists!'
-        }), 400
+        }), ERROR_CODE
 
     teacher = Teacher(
         username = username,
@@ -339,13 +370,13 @@ def register_teacher_account():
             'status': 'success',
             'message': 'Successfully created',
             'teacher': output
-        }), 200
+        }), SUCCESS_CODE
     except Exception as e:
         print(e)
         return jsonify({
             'status': 'fail',
             'message': 'Unable to create account'
-        }), 400
+        }), ERROR_CODE
 
 @app.route('/api/teacher/<teacher_id>', methods = ['DELETE'])
 def delete_teacher_account(teacher_id):
@@ -358,12 +389,12 @@ def delete_teacher_account(teacher_id):
         return jsonify({
             'status': 'success',
             'message': f'Account id: `{teacher_id}` has been deleted'
-        }), 200
+        }), SUCCESS_CODE
     else:
         return jsonify({
             'status': 'fail',
             'message': f'Account id: {teacher_id} does not exist'
-        }), 400
+        }), ERROR_CODE
 
 
 ### Login
@@ -372,6 +403,13 @@ def delete_teacher_account(teacher_id):
 def student_login():
     """login student"""
     credentials = request.json
+
+    if not credentials:
+        return jsonify({
+            'status': 'fail',
+            'message': 'No login credentials provided'
+        }), ERROR_CODE
+
     username = credentials.get('username', '')
     password = credentials.get('password', '')
     student = Student.query.filter_by(username = username).first()
@@ -380,7 +418,7 @@ def student_login():
         return jsonify({
             'status': 'fail',
             'message': f'Invalid username `{username}`'
-        }), 400
+        }), ERROR_CODE
 
     if bcrypt.check_password_hash(student.password, password):
         token = 'token'
@@ -388,17 +426,24 @@ def student_login():
             'status': 'success',
             'message': 'Logged in',
             'token': token
-        }), 200
+        }), SUCCESS_CODE
 
     return jsonify({
             'status': 'fail',
             'message': f'Invalid password'
-        }), 400
+        }), ERROR_CODE
 
 @app.route('/api/auth/teacher/login', methods = ['POST'])
 def teacher_login():
     """teacher login"""
     credentials = request.json
+
+    if not credentials:
+        return jsonify({
+            'status': 'fail',
+            'message': 'No login credentials provided'
+        }), ERROR_CODE
+
     username = credentials.get('username', None)
     password = credentials.get('password', None)
     teacher = Teacher.query.filter_by(username = username).first()
@@ -407,7 +452,7 @@ def teacher_login():
         return jsonify({
             'status': 'fail',
             'message': f'Invalid username `{username}`'
-        }), 400
+        }), ERROR_CODE
 
     if bcrypt.check_password_hash(teacher.password, password):
         token = 'token'
@@ -415,12 +460,12 @@ def teacher_login():
             'status': 'success',
             'message': 'Logged in',
             'token': str(uuid.uuid1())
-        }), 200
+        }), SUCCESS_CODE
 
     return jsonify({
             'status': 'fail',
             'message': f'Invalid password'
-        }), 400
+        }), ERROR_CODE
 
 
 ### Courses
@@ -432,7 +477,7 @@ def get_teacher_courses(teacher_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     formatted_courses = []
     for course in teacher.courses:
@@ -473,20 +518,20 @@ def  get_teacher_course_by_id(course_id, teacher_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     course = Course.query.filter_by(public_id = course_id).first()
     if not course:
         return jsonify({
             'status': 'fail',
             'message': 'Course does not exist'
-        }), 400      
+        }), ERROR_CODE      
 
     if course.teacher != teacher:
         return jsonify({
             'status': 'fail',
             'message': 'Teacher does not have permission to access this course'
-        }), 400
+        }), ERROR_CODE
 
     students = []
     for student in course.students:
@@ -513,7 +558,7 @@ def  get_teacher_course_by_id(course_id, teacher_id):
     return jsonify({
         'status': 'success',
         'course': output
-    }), 200
+    }), SUCCESS_CODE
 
 @app.route('/api/course/<course_id>', methods = ['GET'])
 def  get_course_by_id(course_id):
@@ -523,7 +568,7 @@ def  get_course_by_id(course_id):
         return jsonify({
             'status': 'fail',
             'message': 'Course does not exist'
-        }), 400    
+        }), ERROR_CODE    
 
     students = []
     for student in course.students:
@@ -550,7 +595,7 @@ def  get_course_by_id(course_id):
     return jsonify({
         'status': 'success',
         'course': output
-    }), 200
+    }), SUCCESS_CODE
 
 @app.route('/api/course/<course_id>/teacher/<teacher_id>', methods = ['DELETE'])
 def delete_course_by_teacher(course_id, teacher_id):
@@ -559,20 +604,20 @@ def delete_course_by_teacher(course_id, teacher_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     course = Course.query.filter_by(public_id = course_id).first()
     if not course:
         return jsonify({
             'status': 'fail',
             'message': 'Course does not exist'
-        }), 400      
+        }), ERROR_CODE      
 
     if course.teacher != teacher:
         return jsonify({
             'status': 'fail',
             'message': 'Teacher does not have permission to access this course'
-        }), 400
+        }), ERROR_CODE
 
     try:
         db.session.delete(course)
@@ -580,19 +625,26 @@ def delete_course_by_teacher(course_id, teacher_id):
         return jsonify({
             'status': 'success',
             'message': f'Course id: `{course_id}` has been deleted'
-        }), 200
+        }), SUCCESS_CODE
     except Exception as e:
         print(e)
         print('ERROR')
         return jsonify({
             'status': 'fail',
             'message': 'Course not deleted'
-        }), 400
+        }), ERROR_CODE
 
 
 @app.route('/api/course/', methods = ['POST'])
 def register_course():
     course_info = request.json
+
+    if not course_info:
+        return jsonify({
+            'status': 'fail',
+            'message': 'No course information provided'
+        }), ERROR_CODE
+
     course_name = course_info['name']
     teacher_username = course_info['teacher_username']
 
@@ -601,7 +653,7 @@ def register_course():
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     course = Course(
         name = course_name,
@@ -657,13 +709,13 @@ def register_course():
                 'students': student_output,
                 'num_students': len(student_output)
             }
-        }), 200
+        }), SUCCESS_CODE
     except Exception as e:
         print(e)
         return jsonify({
             'status': 'fail',
             'message': 'Course cannot be created'
-        }), 400
+        }), ERROR_CODE
 
 @app.route('/api/course/<course_id>/teacher/<teacher_id>', methods = ['PUT', 'POST'])
 def update_course(course_id, teacher_id):
@@ -673,22 +725,29 @@ def update_course(course_id, teacher_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     course = Course.query.filter_by(public_id = course_id).first()
     if not course:
         return jsonify({
             'status': 'fail',
             'message': 'Course does not exist'
-        }), 400      
+        }), ERROR_CODE      
 
     if course.teacher != teacher:
         return jsonify({
             'status': 'fail',
             'message': 'Teacher does not have permission to access this course'
-        }), 400
+        }), ERROR_CODE
 
     course_info = request.json
+
+    if not course_info:
+        return jsonify({
+            'status': 'fail',
+            'message': f'No course information provided to update course `{course_id}`'
+        }), ERROR_CODE
+
     student_usernames = course_info.get('student_usernames', [])
 
     course.students = []
@@ -712,7 +771,7 @@ def update_course(course_id, teacher_id):
     #     return jsonify({
     #         'status': 'fail',
     #         'message': 'Unable to update course information'
-    #     }), 400
+    #     }), ERROR_CODE
 
     course.name = course_info['name']
     
@@ -727,13 +786,13 @@ def update_course(course_id, teacher_id):
                 'id': course.public_id,
                 'students': student_output
             }
-        }), 200
+        }), SUCCESS_CODE
     except Exception as e:
         print(e)
         return jsonify({
             'status': 'fail',
             'message': 'Unable to update course information'
-        }), 400
+        }), ERROR_CODE
 
 
 ### Experiment
@@ -746,7 +805,7 @@ def get_teacher_experiments(teacher_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
     
     experiments = []
     for experiment in teacher.experiments:
@@ -768,40 +827,41 @@ def get_teacher_experiments(teacher_id):
             'plant': experiment.plant,
             'start_date': experiment.start_date,
             'id': experiment.public_id,
-            'students': students
+            'students': students,
+            'num_students': len(students)
         }
 
         experiments.append(output)
 
     return jsonify({
         'status': 'success',
-        'length': len(experiments),
+        'num_experiments': len(experiments),
         'experiments': experiments
     })
 
 @app.route('/api/experiment/<experiment_id>/teacher/<teacher_id>', methods = ['GET'])
 def get_experiment_by_id(teacher_id, experiment_id):
-    """get specific experiment"""
+    """get specific experiment belonging to specific teacher"""
     teacher = Teacher.query.filter_by(public_id = teacher_id).first()
 
     if not teacher:
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     experiment = Experiment.query.filter_by(public_id = experiment_id)
     if not experiment:
         return jsonify({
             'status': 'fail',
             'message': 'Experiment does not exist'
-        }), 400
+        }), ERROR_CODE
 
     if experiment.teacher != teacher:
         return jsonify({
             'status': 'fail',
             'message': 'Teacher does not have permissions to access experiment'
-        }), 400
+        }), ERROR_CODE
 
     students = []
     for student in experiment.students:
@@ -832,7 +892,7 @@ def get_experiment_by_id(teacher_id, experiment_id):
     return jsonify({
         'status': 'success',
         'experiment': experiment_output
-    }), 200
+    }), SUCCESS_CODE
 
 
 @app.route('/api/experiment/<experiment_id>/teacher/<teacher_id>', methods = ['DELETE'])
@@ -844,20 +904,20 @@ def delete_experiment(teacher_id, experiment_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     experiment = Experiment.query.filter_by(public_id = experiment_id)
     if not experiment:
         return jsonify({
             'status': 'fail',
             'message': 'Experiment does not exist'
-        }), 400
+        }), ERROR_CODE
 
     if experiment.teacher != teacher:
         return jsonify({
             'status': 'fail',
             'message': 'Teacher does not have permissions to access experiment'
-        }), 400
+        }), ERROR_CODE
 
     try:
         db.session.delete(experiment)
@@ -865,13 +925,13 @@ def delete_experiment(teacher_id, experiment_id):
         return jsonify({
             'status': 'success',
             'message': 'Experiment has been deleted'
-        }), 200
+        }), SUCCESS_CODE
     except Exception as e:
         print(e)
         return jsonify({
             'status': 'fail',
             'message': 'Unable to delete experiment'
-        }), 400
+        }), ERROR_CODE
 
 @app.route('/api/experiment/teacher/<teacher_id>', methods = ['POST'])
 def create_experiment(teacher_id):
@@ -882,9 +942,16 @@ def create_experiment(teacher_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     experiment_info = request.json
+
+    if not experiment_info:
+        return jsonify({
+            'status': 'fail',
+            'message': 'No experiment information provided'
+        }), ERROR_CODE
+
     experiment = Experiment(
         title = experiment_info['title'],
         description = experiment_info['description'],
@@ -931,13 +998,13 @@ def create_experiment(teacher_id):
                 },
                 'students': student_output
             }
-        }), 200
+        }), SUCCESS_CODE
     except Exception as e:
         print(e)
         return jsonify({
             'status': 'fail',
             'message': 'Unable to create experiment'
-        }), 400
+        }), ERROR_CODE
 
 @app.route('/api/experiment/<experiment_id>/teacher/<teacher_id>', methods = ['PUT', 'POST'])
 def update_experiment(teacher_id, experiment_id):
@@ -948,16 +1015,23 @@ def update_experiment(teacher_id, experiment_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     experiment = Experiment.query.filter_by(public_id = experiment_id).first()
     if not experiment:
         return jsonify({
             'status': 'fail',
             'message': 'Experiment does not exist'
-        }), 400
+        }), ERROR_CODE
 
     experiment_info = request.json
+
+    if not experiment_info:
+        return jsonify({
+            'status': 'fail',
+            'message': f'No experiment information provided to update experiment `{experiment_id}`'
+        }), ERROR_CODE
+
     student_usernames = experiment_info.get('student_usernames', [])
 
     experiment.students = []
@@ -981,7 +1055,7 @@ def update_experiment(teacher_id, experiment_id):
         return jsonify({
             'status': 'fail',
             'message': 'Unable to update course information'
-        }), 400
+        }), ERROR_CODE
 
     experiment.title = experiment_info['title']
     experiment.plant = experiment_info['plant']
@@ -1006,13 +1080,13 @@ def update_experiment(teacher_id, experiment_id):
                     'id': teacher.public_id
                 }
             }
-        }), 200
+        }), SUCCESS_CODE
     except Exception as e:
         print(e)
         return jsonify({
             'status': 'fail',
             'message': 'Unable to update course information'
-        }), 400
+        }), ERROR_CODE
 
 
 
@@ -1025,7 +1099,7 @@ def get_all_student_assignments(student_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     assignments = student.assignments
     assignment_output = []
@@ -1052,7 +1126,7 @@ def get_all_student_assignments(student_id):
             'id': student.public_id,
             'username': student.username
         }
-    }), 200
+    }), SUCCESS_CODE
 
     pass
 
@@ -1064,7 +1138,7 @@ def get_all_teacher_assignments(teacher_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     assignments = teacher.assignments
     assignment_output = []
@@ -1090,7 +1164,7 @@ def get_all_teacher_assignments(teacher_id):
             'id': teacher.public_id,
             'username': teacher.username
         }
-    }), 200
+    }), SUCCESS_CODE
 
 @app.route('/api/assignment/<assignment_id>', methods = ['GET'])
 def get_assignment_by_id(assignment_id):
@@ -1100,7 +1174,7 @@ def get_assignment_by_id(assignment_id):
         return jsonify({
             'status': 'fail',
             'message': 'Assignmnet does not exist'
-        }), 400
+        }), ERROR_CODE
 
     students = []
     for student in assignment.students:
@@ -1132,7 +1206,7 @@ def get_assignment_by_id(assignment_id):
             'type': assignment.type,
             'due_date': assignment.due_date
         }
-    }), 200
+    }), SUCCESS_CODE
 
 @app.route('/api/assignment/teacher/<teacher_id>', methods = ['POST'])
 def create_assignment(teacher_id):
@@ -1142,9 +1216,15 @@ def create_assignment(teacher_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     assignment_info = request.json
+    if not assignment_info:
+        return jsonify({
+            'status': 'fail',
+            'message': 'No assignment information provided'
+        }), ERROR_CODE
+
     assignment = Assignment(
         title = assignment_info['title'],
         description = assignment_info['description'],
@@ -1192,13 +1272,13 @@ def create_assignment(teacher_id):
                 'username': teacher.username,
                 'id': teacher.public_id
             }
-        }), 200
+        }), SUCCESS_CODE
     except Exception as e:
         print(e)
         return jsonify({
             'status': 'fail',
             'message': 'Assignment not created'
-        }), 400
+        }), ERROR_CODE
 
 
 
@@ -1210,22 +1290,28 @@ def update_assignment(teacher_id, assignment_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     assignment = Assignment.query.filter_by(public_id = assignment_id).first()
     if not assignment:
         return jsonify({
             'status': 'fail',
             'message': 'Experiment does not exist'
-        }), 400
+        }), ERROR_CODE
 
     if assignment.teacher != teacher:
         return jsonify({
             'status': 'fail',
             'message': 'Teacher not authorized to update assignment'
-        }), 400
+        }), ERROR_CODE
 
     assignment_info = request.json
+    if not assignment_info:
+        return jsonify({
+            'status': 'fail',
+            'message': f'No assignment information provided to update assignment `{assignment_id}`'
+        }), ERROR_CODE
+
     assignment = Assignment(
         title = assignment_info['title'],
         description = assignment_info['description'],
@@ -1291,13 +1377,13 @@ def update_assignment(teacher_id, assignment_id):
                 'username': teacher.username,
                 'id': teacher.public_id
             }
-        }), 200
+        }), SUCCESS_CODE
     except Exception as e:
         print(e)
         return jsonify({
             'status': 'fail',
             'message': 'Assignment not created'
-        }), 400
+        }), ERROR_CODE
 
 @app.route('/api/assignment/<assignment_id>/teacher/<teacher_id>', methods = ['DELETE'])
 def delete_assignment(teacher_id, assignment_id):
@@ -1307,20 +1393,20 @@ def delete_assignment(teacher_id, assignment_id):
         return jsonify({
             'status': 'fail',
             'message': 'Account does not exist'
-        }), 400
+        }), ERROR_CODE
 
     assignment = Assignment.query.filter_by(public_id = assignment_id).first()
     if not assignment:
         return jsonify({
             'status': 'fail',
             'message': 'Assignment does not exist'
-        }), 400
+        }), ERROR_CODE
 
     if assignment.teacher != teacher:
         return jsonify({
             'status': 'fail',
             'message': 'Teacher not authorized to delete assignment'
-        }), 400
+        }), ERROR_CODE
 
     try:
         db.session.delete(assignment)
@@ -1328,14 +1414,14 @@ def delete_assignment(teacher_id, assignment_id):
         return jsonify({
             'status': 'success',
             'message': 'Assignment has been deleted'
-        }), 200
+        }), SUCCESS_CODE
 
     except Exception as e:
         print(e)
         return jsonify({
             'status': 'fail',
             'message': 'Unable to delete assignment'
-        }), 400
+        }), ERROR_CODE
 
 
 
@@ -1348,7 +1434,7 @@ def get_all_responses_by_assignment(assignment_id):
         return jsonify({
             'status': 'fail',
             'message': 'Experiment does not exist'
-        }), 400
+        }), ERROR_CODE
 
     output = []
     for response in assignment.responses:  
@@ -1379,41 +1465,119 @@ def get_all_responses_by_assignment(assignment_id):
     return jsonify({
         'status': 'success',
         'assignment_response': output
-    }), 200
-
-# TODO: implement this method
-# @app.route('/api/assignment/<assignment_id>/response/student/<student_id>', methods = ['GET'])
-# def get_student_assignment_responses_by_assignment_id(student_id, assignment_id):
-#     """get student's assigment response"""
-#     student = Student.query.filter_by(public_id = student_id).first()
-#     if not student:
-#         return jsonify({
-#             'status': 'fail',
-#             'message': 'Account does not exist'
-#         }), 400
-
-#     assignment = Assignment.query.filter_by(public_id = assignment_id).first()
-#     if not assignment:
-#         return jsonify({
-#             'status': 'fail',
-#             'message': 'Assignment does not exist'
-#         }), 400
-
-#     for assignee in assignment.students:
-#         if assignee == student:
+    }), SUCCESS_CODE
 
 
-#     return jsonify({
-#         'status': 'fail',
-#         'message': f'Student does not have assignment with id `{assignment_id}` assigned'
-#     }), 400
+@app.route('/api/assignment/<assignment_id>/response/student/<student_id>', methods = ['GET'])
+def get_student_assignment_responses_by_assignment_id(student_id, assignment_id):
+    """get student's assigment response"""
+    student = Student.query.filter_by(public_id = student_id).first()
+    if not student:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Account does not exist'
+        }), ERROR_CODE
+
+    assignment = Assignment.query.filter_by(public_id = assignment_id).first()
+    if not assignment:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Assignment id `{assignment_id}` does not exist'
+        }), ERROR_CODE
+
+    assignment_response = AssignmentResponse.query.filter_by(assignment_id = assignment_id, student_id = student_id).first()
+    if not assignment_response:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Assignment response for assignment with id `{assignment_id}` does not exist'
+        }), ERROR_CODE
+
+    response_output = {
+        'id': assignment_response.public_id,
+        'submitted': assignment_response.submitted,
+        'response': assignment_response.response,
+        'comments': assignment_response.comments,
+        'assignment': {
+            'id': assignment.public_id,
+            'title': assignment.title,
+            'description': assignment.description,
+            'type': assignment.type,
+            'due_date': assignment.due_date
+        }
+    }
+
+    return jsonify({
+        'status': 'success',
+        'assignment_response': response_output,
+        'student': {
+            'id': student.public_id,
+            'fname': student.fname,
+            'lname': student.lname,
+            'username': student.username
+        }
+    }), SUCCESS_CODE
 
 # @app.route('/api/assignment/<assignment_id>/response/<assignment_response_id>/student/<student_id>', methods = ['PUT', 'POST'])
 # def update_student_response(assignment_id, student_id, assignment_response_id):
 #     """update student assignment response"""
 #     pass
 
-# @app.route('/api/assignment/<assignment_id>/response/<assignment_response_id>/teacher/<teacher_id>', methods = ['PUT', 'POST'])
-# def add_comment_to_assignment_response(teacher_id, assignment_response_id):
-#     """add comments to assignment response"""
-#     pass
+@app.route('/api/assignment/<assignment_id>/response/<assignment_response_id>/teacher/<teacher_id>', methods = ['PUT', 'POST'])
+def add_comment_to_assignment_response(teacher_id, assignment_id, assignment_response_id):
+    """add comments to assignment response"""
+    assignment = Assignment.query.filter_by(public_id = assignment_id).first()
+    if not assignment:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Assignment id `{assignment_id}` does not exist'
+        }), ERROR_CODE
+
+    assignment_response = AssignmentResponse.query.filter_by(public_id = assignment_response_id).first()
+    if not assignment_response:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Assignment response id `{assignment_response_id}` does not exist'
+        }), ERROR_CODE
+
+    teacher = Teacher.query.filter_by(public_id = teacher_id).first()
+    if not teacher:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Account id `{teacher_id}` does not exist'
+        }), ERROR_CODE
+
+    comments = request.json.get('comments', None)
+    if not comments:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Comments not provided for assignment response `{assignment_response_id}`'
+        }), ERROR_CODE
+
+    assignment_response.comments = comments
+
+    try:
+        db.session.add(assignment_response)
+        db.session.commit()
+        return jsonify({
+            'status': 'success',
+            'assignment_response': {
+                'id': assignment_response.public_id,
+                'response': assignment_response.response,
+                'comments': assignment_response.comments,
+                'submitted': assignment_response.submitted,
+                'student': {
+                    'id': assignment_response.student.public_id,
+                    'fname': assignment_response.student.fname,
+                    'lname': assignment_response.student.lname,
+                    'username': assignment_response.student.username
+                }
+            }
+        }), SUCCESS_CODE
+    except Exception as e:
+        print(e)
+        return jsonify({
+            'status': 'fail',
+            'message': f'Unable to add comments to assignment response `{assignment_response_id}`'
+        }), ERROR_CODE
+
+    pass
