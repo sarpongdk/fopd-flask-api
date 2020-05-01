@@ -108,6 +108,8 @@ def update_teacher_account(teacher_id):
         }), ERROR_CODE
 
 
+### Register account
+
 @teachers.route('/api/auth/register/teacher', methods = ['POST'])
 def register_teacher_account():
     """create teacher account"""
@@ -119,12 +121,20 @@ def register_teacher_account():
             'message': 'No account information provided'
         }), ERROR_CODE
 
-    username = account_info['username']
-    password = account_info['password']
+    username = account_info.get('username', '')
+    password = account_info.get('password', '')
+    if not password or not username:
+        return jsonify({
+            'status': 'fail',
+            'message': 'No username or password provided'
+        }), ERROR_CODE
+
     fname = account_info.get('fname', 'No name')
     lname = account_info.get('lname', 'No name')
     public_id = str(uuid.uuid4())
-    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    encoded_password = password.encode('utf-8')
+    hashed_password = bcrypt.generate_password_hash(encoded_password).decode('utf-8') # password
 
     # check if teacher account already exists
     existing_teacher = Teacher.query.filter_by(username = username).first()
@@ -195,8 +205,14 @@ def teacher_login():
             'message': 'No login credentials provided'
         }), ERROR_CODE
 
-    username = credentials.get('username', None)
-    password = credentials.get('password', None)
+    username = credentials.get('username', '')
+    password = credentials.get('password', '')
+    if not password or not username:
+        return jsonify({
+            'status': 'fail',
+            'message': 'No username or password provided'
+        }), ERROR_CODE
+
     teacher = Teacher.query.filter_by(username = username).first()
 
     if not teacher:
@@ -205,7 +221,8 @@ def teacher_login():
             'message': f'Invalid username `{username}`'
         }), ERROR_CODE
 
-    if bcrypt.check_password_hash(teacher.password, password):
+    encoded_password = password.encode('utf-8')
+    if bcrypt.check_password_hash(teacher.password, encoded_password): # password
         token = 'token'
         return jsonify({
             'status': 'success',

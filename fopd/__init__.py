@@ -1,12 +1,14 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+#from flask_migrate import Migrate
 
 from fopd.config import Config
 
 # use same object with different apps
 db = SQLAlchemy()
 bcrypt = Bcrypt()
+#migrate = Migrate()
 
 def create_app(config_object = Config):
     app = Flask(__name__)
@@ -14,6 +16,7 @@ def create_app(config_object = Config):
 
     # initialize object
     db.init_app(app)
+    #migrate.init_app(app, db)
     bcrypt.init_app(app)
 
     from fopd.students.routes import students
