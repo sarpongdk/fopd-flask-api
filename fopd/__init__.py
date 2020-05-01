@@ -2,12 +2,33 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 
-app = Flask(__name__)
+from fopd.config import Config
 
-app.config['SECRET_KEY'] = 'secret'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/flasktestdb2'
+# use same object with different apps
+db = SQLAlchemy()
+bcrypt = Bcrypt()
 
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
+def create_app(config_object = Config):
+    app = Flask(__name__)
+    app.config.from_object(config_object) # flask app configuration in config.py
 
-from fopd import routes
+    # initialize object
+    db.init_app(app)
+    bcrypt.init_app(app)
+
+    from fopd.students.routes import students
+    from fopd.teachers.routes import teachers
+    from fopd.experiments.routes import experiments
+    from fopd.courses.routes import courses
+    from fopd.assignments.routes import assignments
+    from fopd.assignment_responses.routes import assignment_responses
+
+    app.register_blueprint(students)
+    app.register_blueprint(teachers)
+    app.register_blueprint(experiments)
+    app.register_blueprint(courses)
+    app.register_blueprint(assignments)
+    app.register_blueprint(assignment_responses)
+
+    return app
+
