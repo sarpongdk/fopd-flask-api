@@ -4,19 +4,60 @@ This RESTful backend web service is developed to abstract nuances and nitty-grit
 
 ### Usage
 
-A `.env` should be created in the following directory beforehand `./fopd`. If not, I have a script called `initialize.py` to automate the creation of the dotenv file in that directory. To run that script, execute:
+<!-- A `.env` should be created in the following directory beforehand `./fopd`. If not, I have a script called `initialize.py` to automate the creation of the dotenv file in that directory. To run that script, execute:
 
 ```
 python3 initialize.py
+``` -->
+
+Create a virtual environment with:
+
+```
+python3 -m venv _dir_name_here_
 ```
 
-To run the project without the `Makefile` provided, navigate to the route directory and execute the following command:
+Install the necessary dependencies for the project to run after setting up a virtual environment. Run:
 
 ```
+make python-packages
+
+# or
+
+python3 -m pip install -r requirements.txt
+```
+
+to install the dependencies.
+
+Initialize and create the db with the following command:
+
+```
+make create-db
+
+# or
+
+make db-init
+make db-migrate
+make db-upgrade
+
+# or
+
+python3 manage.py db init
+python3 manage.py db migrate
+python3 manage.py db upgrade
+
+```
+
+To run the project:
+
+```
+make run
+
+# or
+
 python3 manage.py run
 ```
 
-The `Makefile` provided here contains all the necessary commands to recrete and run the application
+The `Makefile` provided here contains all the necessary commands to recreate and run the application
 
 ```
 MANAGE=manage.py

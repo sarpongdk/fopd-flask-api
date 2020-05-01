@@ -5,6 +5,7 @@ MANAGE=manage.py
 help:
 	@echo "Navigate into the root directory and set up a virtual environment"
 	@echo "To create the virtual env execute python3 -m  venv {dirname}"
+	@echo "Install the necessary dependencies for the project with the command make python-packages"
 	@echo ""
 	@echo "Please use \`make <target>\' where <target> is one of"
 	@echo "  clean      to clean project directory"
