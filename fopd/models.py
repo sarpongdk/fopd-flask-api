@@ -20,6 +20,13 @@ class Teacher(db.Model):
     def __repr__(self):
         return f'<Teacher("{self.username}", "{self.public_id}")>'
 
+### Many to many
+### Student assignments
+student_assignments = db.Table('student_assignmetns',
+    db.Column('assignment_id', db.Integer, db.ForeignKey('assignment.id'), nullable = False),
+    db.Column('student_id', db.Integer, db.ForeignKey('student.id'), nullable = False)
+)
+
 class Student(db.Model):
     __tablename__ = 'student'
 
@@ -86,12 +93,6 @@ class Assignment(db.Model):
     assignment_responses = db.relationship('AssignmentResponse', backref = 'assignment', lazy = True, cascade = 'all, delete-orphan')
     # TODO: test many-to-many works
 
-### Many to many
-### Student assignments
-student_assignments = db.Table('student_assignmetns',
-    db.Column('assignment_id', db.Integer, db.ForeignKey('assignment.id'), nullable = False),
-    db.Column('student_id', db.Integer, db.ForeignKey('student.id'), nullable = False)
-)
 
 class AssignmentResponse(db.Model):
     __tablename__ = 'assignment_responses'
