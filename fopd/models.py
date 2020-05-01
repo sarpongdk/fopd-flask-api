@@ -20,6 +20,9 @@ class Teacher(db.Model):
     def __repr__(self):
         return f'<Teacher("{self.username}", "{self.public_id}")>'
 
+    # def __eq__(self, other):
+    #     return self._id == other._id and self.public_id == other.public_id
+
 ### Many to many
 ### Student assignments
 student_assignments = db.Table('student_assignmetns',
@@ -42,10 +45,13 @@ class Student(db.Model):
     experiment_id = db.Column(db.Integer, db.ForeignKey('experiment.id')) #, nullable = False) # ask
 
     assignments = db.relationship('Assignment', secondary = student_assignments, lazy = 'subquery', backref = db.backref('students', lazy = True))
-    assignment_responses = db.relationship('AssignmentResponse', backref = 'student', lazy = True)
+    assignment_responses = db.relationship('AssignmentResponse', backref = 'student', lazy = True, cascade = 'all, delete-orphan')
 
     def __repr__(self):
         return f'<Student("{self.username}", "{self.public_id}")>'
+
+    # def __eq__(self, other):
+    #     return self._id == other._id and self.public_id == other.public_id
 
 class Course(db.Model):
     __tablename__ = 'course'
@@ -91,10 +97,13 @@ class Assignment(db.Model):
 
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable = False)
 
-    assignment_responses = db.relationship('AssignmentResponse', backref = 'assignment', lazy = True, cascade = 'all, delete-orphan')
+    responses = db.relationship('AssignmentResponse', backref = 'assignment', lazy = True, cascade = 'all, delete-orphan')
     # TODO: test many-to-many works
     def __repr__(self):
         return f'<Assignment("{self.title}", "{self.type}", "{self.public_id}", "{self.teacher.username}")>'
+
+    # def __eq__(self, other):
+    #     return self._id == other._id and self._title == other.title and self.public_id == other.public_id
 
 
 class AssignmentResponse(db.Model):
