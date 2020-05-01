@@ -34,7 +34,7 @@ def get_all_students_by_teacher(teacher_id):
     if not teacher:
         return jsonify({
             'status': 'fail',
-            'message': 'Account does not exist'
+            'message': f'Account id `{teacher_id} `does not exist'
         }), 400
     
     # format output
@@ -69,7 +69,8 @@ def get_student_by_id(student_id):
     if not student:
         return jsonify({
             'status': 'fail',
-            'message': 'Account does not exist'
+            'message': f'Account id `{student_id}` does not exist',
+            'student': {}
         }), 400
 
     return jsonify({
@@ -140,13 +141,14 @@ def register_student_account():
         return jsonify({
             'status': 'success',
             'message': 'Successfully created',
-            'data': output
+            'student': output
         }), 200
     except Exception as e:
         print(e)
         return jsonify({
             'status': 'fail',
-            'message': 'Unable to create account'
+            'message': 'Unable to create account',
+            'student': {}
         }), 400
 
 
@@ -226,7 +228,7 @@ def get_all_teachers():
     return jsonify({
         'status': 'success',
         'length': len(output),
-        'teachers': output
+        'teachers_list': output
     }), 200
 
 @app.route('/api/teacher/<teacher_id>', methods = ['GET'])
@@ -370,8 +372,8 @@ def delete_teacher_account(teacher_id):
 def student_login():
     """login student"""
     credentials = request.json
-    username = credentials.get('username', None)
-    password = credentials.get('password', None)
+    username = credentials.get('username', '')
+    password = credentials.get('password', '')
     student = Student.query.filter_by(username = username).first()
 
     if not student:
@@ -412,7 +414,7 @@ def teacher_login():
         return jsonify({
             'status': 'success',
             'message': 'Logged in',
-            'token': token
+            'token': str(uuid.uuid1())
         }), 200
 
     return jsonify({
@@ -465,6 +467,7 @@ def get_teacher_courses(teacher_id):
 
 @app.route('/api/course/<course_id>/teacher/<teacher_id>', methods = ['GET'])
 def  get_teacher_course_by_id(course_id, teacher_id):
+    """get teacher's course by teacher_id"""
     teacher = Teacher.query.filter_by(public_id = teacher_id).first()
     if not teacher:
         return jsonify({
@@ -485,6 +488,15 @@ def  get_teacher_course_by_id(course_id, teacher_id):
             'message': 'Teacher does not have permission to access this course'
         }), 400
 
+    students = []
+    for student in course.students:
+        students.append({
+            'fname': student.fname,
+            'lname': student.lname,
+            'id': student.public_id,
+            'username': student.username
+        })
+
     output = {
         'name': course.name,
         'id': course.public_id,
@@ -493,7 +505,9 @@ def  get_teacher_course_by_id(course_id, teacher_id):
             'lname': teacher.lname,
             'username': teacher.username,
             'id': teacher.public_id
-        }
+        },
+        'students': students,
+        'num_students': len(students)
     }
 
     return jsonify({
@@ -503,12 +517,22 @@ def  get_teacher_course_by_id(course_id, teacher_id):
 
 @app.route('/api/course/<course_id>', methods = ['GET'])
 def  get_course_by_id(course_id):
+    """get course by course_id"""
     course = Course.query.filter_by(public_id = course_id).first()
     if not course:
         return jsonify({
             'status': 'fail',
             'message': 'Course does not exist'
         }), 400    
+
+    students = []
+    for student in course.students:
+        students.append({
+            'fname': student.fname,
+            'lname': student.lname,
+            'id': student.public_id,
+            'username': student.username
+        })
 
     output = {
         'name': course.name,
@@ -518,7 +542,9 @@ def  get_course_by_id(course_id):
             'lname': course.teacher.lname,
             'username': course.teacher.username,
             'id': course.teacher.public_id
-        }
+        },
+        'students': students,
+        'num_students': len(students)
     }   
 
     return jsonify({
@@ -585,21 +611,33 @@ def register_course():
     student_usernames = course.get('student_username', [])
 
     course.teacher = teacher
-    course.students = []
+
+
     student_output = []
-    for student_username in student_usernames:
-        student = Student.query.filter_by(username = student_username).first()
+    if student_usernames:
+        course.students = []
+        for student_username in student_usernames:
+            student = Student.query.filter_by(username = student_username).first()
 
-        if student:
-            course.students.append(student)
+            if student:
+                course.students.append(student)
 
+                output = {
+                    'fname': student.fname,
+                    'lname': student.lname,
+                    'username': student.username,
+                    'id': student.public_id
+                }
+                student_output.append(output)
+    else:
+        for student in course.students:
             output = {
                 'fname': student.fname,
                 'lname': student.lname,
                 'username': student.username,
                 'id': student.public_id
             }
-            student_output.append(output)
+            student_output.append(output)            
 
     try:
         db.session.add(course)
