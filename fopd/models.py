@@ -34,6 +34,7 @@ class Student(db.Model):
     course_id = db.Column(db.Integer, db.ForeignKey('course.id')) #, nullable = False)  # uncomment later
     experiment_id = db.Column(db.Integer, db.ForeignKey('experiment.id')) #, nullable = False) # ask
 
+    assignments = db.relationship('Assignment', secondary = student_assignments, lazy = 'subquery', backref = db.backref('students', lazy = True))
     assignment_responses = db.relationship('AssignmentResponse', backref = 'student', lazy = True)
 
     def __repr__(self):
@@ -78,13 +79,19 @@ class Assignment(db.Model):
     description = db.Column(db.Text, nullable = False)
     type = db.Column(db.String(50), nullable = False)
     due_date = db.Column(db.DateTime, nullable = False, default = datetime.datetime.utcnow)
+    public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
 
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable = False)
 
     assignment_responses = db.relationship('AssignmentResponse', backref = 'assignment', lazy = True, cascade = 'all, delete-orphan')
-    # TODO: student and assignments
-    # many-to-many students and assignments
+    # TODO: test many-to-many works
 
+### Many to many
+### Student assignments
+student_assignments = db.Table('student_assignmetns',
+    db.Column('assignment_id', db.Integer, db.ForeignKey('assignment.id'), nullable = False),
+    db.Column('student_id', db.Integer, db.ForeignKey('student.id'), nullable = False)
+)
 
 class AssignmentResponse(db.Model):
     __tablename__ = 'assignment_responses'
@@ -93,6 +100,7 @@ class AssignmentResponse(db.Model):
     response = db.Column(db.Text, nullable = False)
     submitted = db.Column(db.DateTime, nullable = False, default = datetime.datetime.utcnow)
     comments = db.Column(db.Text)
+    public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
 
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable = False)
     assignment_id = db.Column(db.Integer, db.ForeignKey('assignment.id'), nullable = False)
