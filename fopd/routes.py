@@ -1,7 +1,7 @@
 from fopd import app, db, bcrypt
 from flask import request, jsonify
 
-from fopd.models import Teacher, Student, Course
+from fopd.models import Teacher, Student, Course, Experiment
 
 import uuid
 
@@ -618,7 +618,7 @@ def update_course(course_id, teacher_id):
         }), 400
 
     course_info = request.json
-    student_usernames = course_info['student_usernames']
+    student_usernames = course_info.get('student_usernames', [])
 
     course.students = []
     student_output = []
@@ -668,25 +668,331 @@ def update_course(course_id, teacher_id):
 @app.route('/api/experiment/teacher/<teacher_id>', methods = ['GET'])
 def get_teacher_experiments(teacher_id):
     """get teacher's experiments list"""
-    pass
+    teacher = Teacher.query.filter_by(public_id = teacher_id).first()
+
+    if not teacher:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Account does not exist'
+        }), 400
+    
+    experiments = []
+    for experiment in teacher.experiments:
+        students = []
+
+        for student in experiment.students:
+            student_output = {
+                'fname': student.fname,
+                'lname': student.lname,
+                'username': student.username,
+                'id': student.public_id
+            }
+
+            students.append(student_output)
+
+        output = {
+            'title': experiment.title,
+            'description': experiment.description,
+            'plant': experiment.plant,
+            'start_date': experiment.start_date,
+            'id': experiment.public_id,
+            'students': students
+        }
+
+        experiments.append(output)
+
+    return jsonify({
+        'status': 'success',
+        'length': len(experiments),
+        'experiments': experiments
+    })
 
 @app.route('/api/experiment/<experiment_id>/teacher/<teacher_id>', methods = ['GET'])
 def get_experiment_by_id(teacher_id, experiment_id):
     """get specific experiment"""
-    pass
+    teacher = Teacher.query.filter_by(public_id = teacher_id).first()
+
+    if not teacher:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Account does not exist'
+        }), 400
+
+    experiment = Experiment.query.filter_by(public_id = experiment_id)
+    if not experiment:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Experiment does not exist'
+        }), 400
+
+    if experiment.teacher != teacher:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Teacher does not have permissions to access experiment'
+        }), 400
+
+    students = []
+    for student in experiment.students:
+        student_output = {
+            'fname': student.fname,
+            'lname': student.lname,
+            'username': student.username,
+            'id': student.public_id
+        }
+
+        students.append(student_output)
+
+    experiment_output = {
+        'title': experiment.title,
+        'description': experiment.description,
+        'plant': experiment.plant,
+        'start_date': experiment.start_date,
+        'id': experiment.public_id,
+        'teacher': {
+            'fname': teacher.fname,
+            'lname': teacher.lname,
+            'id': teacher.public_id,
+            'username': teacher.username
+        },
+        'students': students
+    }
+
+    return jsonify({
+        'status': 'success',
+        'experiment': experiment_output
+    }), 200
+
 
 @app.route('/api/experiment/<experiment_id>/teacher/<teacher_id>', methods = ['DELETE'])
 def delete_experiment(teacher_id, experiment_id):
     """delete experiment"""
-    pass
+    teacher = Teacher.query.filter_by(public_id = teacher_id).first()
+
+    if not teacher:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Account does not exist'
+        }), 400
+
+    experiment = Experiment.query.filter_by(public_id = experiment_id)
+    if not experiment:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Experiment does not exist'
+        }), 400
+
+    if experiment.teacher != teacher:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Teacher does not have permissions to access experiment'
+        }), 400
+
+    try:
+        db.session.delete(experiment)
+        db.session.commit()
+        return jsonify({
+            'status': 'success',
+            'message': 'Experiment has been deleted'
+        }), 200
+    except Exception as e:
+        print(e)
+        return jsonify({
+            'status': 'fail',
+            'message': 'Unable to delete experiment'
+        }), 400
 
 @app.route('/api/experiment/teacher/<teacher_id>', methods = ['POST'])
 def create_experiment(teacher_id):
     """create new experiment"""
-    pass
+    teacher = Teacher.query.filter_by(public_id = teacher_id).first()
+
+    if not teacher:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Account does not exist'
+        }), 400
+
+    experiment_info = request.json
+    experiment = Experiment(
+        title = experiment_info['title'],
+        description = experiment_info['description'],
+        plant = experiment_info['plant'],
+        public_id = str(uuid.uuid4())
+    )
+    experiment.teacher = teacher
+
+    student_usernames = experiment_info.get('student_usernames', [])
+
+    experiment.students = []
+    student_output = []
+    for student_username in student_usernames:
+        student = Student.query.filter_by(username = student_username).first()
+
+        if student:
+            experiment.students.append(student)
+
+            output = {
+                'fname': student.fname,
+                'lname': student.lname,
+                'username': student.username,
+                'id': student.public_id
+            }
+            student_output.append(output)
+
+    try:
+        db.session.add(experiment)
+        db.session.commit()
+        return jsonify({
+            'status': 'success',
+            'message': 'Successfully created experiment',
+            'experiment': {
+                'title': experiment.title,
+                'description': experiment.description,
+                'plant': experiment.plant,
+                'id': experiment.public_id,
+                'teacher': {
+                    'fname': experiment.teacher.fname,
+                    'lname': experiment.teacher.lname,
+                    'username': experiment.teacher.username,
+                    'id': experiment.teacher.public_id
+                },
+                'students': student_output
+            }
+        }), 200
+    except Exception as e:
+        print(e)
+        return jsonify({
+            'status': 'fail',
+            'message': 'Unable to create experiment'
+        }), 400
 
 @app.route('/api/experiment/<experiment_id>/teacher/<teacher_id>', methods = ['PUT', 'POST'])
 def update_experiment(teacher_id, experiment_id):
     """update experiment"""
+    teacher = Teacher.query.filter_by(public_id = teacher_id).first()
+
+    if not teacher:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Account does not exist'
+        }), 400
+
+    experiment = Experiment.query.filter_by(public_id = experiment_id).first()
+    if not experiment:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Experiment does not exist'
+        }), 400
+
+    experiment_info = request.json
+    student_usernames = experiment_info.get('student_usernames', [])
+
+    experiment.students = []
+    student_output = []
+    for student_username in student_usernames:
+        student = Student.query.filter_by(username = student_username).first()
+
+        if student:
+            experiment.students.append(student)
+
+            output = {
+                'fname': student.fname,
+                'lname': student.lname,
+                'username': student.username,
+                'id': student.public_id
+            }
+            student_output.append(output)
+
+
+    if len(student_output) == 0:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Unable to update course information'
+        }), 400
+
+    experiment.title = experiment_info['title']
+    experiment.plant = experiment_info['plant']
+    experiment.description = experiment_info['description']
+
+    try:
+        db.session.add(experiment)
+        db.session.commit()
+        return jsonify({
+            'status': 'success',
+            'message': 'Experiment has been updated',
+            'experiment': {
+                'title': experiment.title,
+                'description': experiment.description,
+                'plant': experiment.plant,
+                'id': experiment.public_id,
+                'students': student_output,
+                'teacher': {
+                    'fname': teacher.fname,
+                    'lname': teacher.lname,
+                    'username': teacher.username,
+                    'id': teacher.public_id
+                }
+            }
+        }), 200
+    except Exception as e:
+        print(e)
+        return jsonify({
+            'status': 'fail',
+            'message': 'Unable to update course information'
+        }), 400
+
+
+
+### Assignments
+@app.route('/api/assignment/<assignment_id>/student/<student_id>', methods = ['GET'])
+def get_all_student_assignments(student_id):
+    """get all student assignments"""
     pass
 
+@app.route('/api/assignment/<assignment_id>/teacher/<teacher_id>', methods = ['GET'])
+def get_all_teacher_assignments(teacher_id):
+    """get all teacher assignments"""
+    pass
+
+@app.route('/api/assignment/<assignment_id>', methods = ['GET'])
+def get_assignment_by_id(assignment_id):
+    """get assignment by id"""
+    pass
+
+@app.route('/api/assignment/teacher/<teacher_id>', methods = ['POST'])
+def create_assignment(teacher_id):
+    """create new assignment"""
+    pass
+
+@app.route('/api/assignment/<assignment_id>/teacher/<teacher_id>', methods = ['PUT', 'POST'])
+def update_assignment(teacher_id, assignment_id):
+    """update assignment"""
+    pass
+
+@app.route('/api/assignment/<assignment_id>/teacher/<teacher_id>', methods = ['DELETE'])
+def delete_assignment(teacher_id, assignment_id):
+    """delete assignment"""
+    pass
+
+
+
+### Assignment Responses
+@app.route('/api/assignment/<assignment_id>/response', methods = ['GET'])
+def get_all_responses_by_assignment(assignment_id):
+    """get assignment responses from assignment id"""
+    pass
+
+@app.route('/api/assignment/<assignment_id>/response/student/<student_id>', methods = ['GET'])
+def get_student_assignment_responses_by_assignment_id(student_id, assignment_id):
+    """get student's assigment response"""
+    pass
+
+@app.route('/api/assignment/<assignment_id>/response/<assignment_response_id>/student/<student_id>', methods = ['PUT', 'POST'])
+def update_student_response(assignment_id, student_id, assignment_response_id):
+    """update student assignment response"""
+    pass
+
+@app.route('/api/assignment/<assignment_id>/response/<assignment_response_id>/teacher/<teacher_id>', methods = ['PUT', 'POST'])
+def add_comment_to_assignment_response(teacher_id, assignment_response_id):
+    """add comments to assignment response"""
+    pass
