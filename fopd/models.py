@@ -78,6 +78,7 @@ class Experiment(db.Model):
     def __repr__(self):
         return f'<Experiment("{self.title}", "{self.start_date}", "{self.public_id}", "{self.students[:4]}")>'
 
+
 class Assignment(db.Model):
     __tablename__ = 'assignment'
 
@@ -92,6 +93,8 @@ class Assignment(db.Model):
 
     assignment_responses = db.relationship('AssignmentResponse', backref = 'assignment', lazy = True, cascade = 'all, delete-orphan')
     # TODO: test many-to-many works
+    def __repr__(self):
+        return f'<Assignment("{self.title}", "{self.type}", "{self.public_id}", "{self.teacher.username}")>'
 
 
 class AssignmentResponse(db.Model):
@@ -105,3 +108,6 @@ class AssignmentResponse(db.Model):
 
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable = False)
     assignment_id = db.Column(db.Integer, db.ForeignKey('assignment.id'), nullable = False)
+
+    def __repr__(self):
+        return f'<AssignmentResponse("{self.response}", "{self.student.username}", "{self.public_id}")>'
