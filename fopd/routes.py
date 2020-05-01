@@ -8,7 +8,7 @@ import uuid
 
 ### Student
 
-@app.route('/api/student/<student_id>', methods = ['DELETE', 'POST'])
+@app.route('/api/student/<student_id>', methods = ['DELETE'])
 def delete_student_account(student_id):
     """delete student account by id"""
     student = Student.query.filter_by(public_id = student_id).first()
@@ -331,7 +331,7 @@ def register_teacher_account():
             'message': 'Unable to create account'
         }), 400
 
-@app.route('/api/teacher/<teacher_id>', methods = ['DELETE', 'POST'])
+@app.route('/api/teacher/<teacher_id>', methods = ['DELETE'])
 def delete_teacher_account(teacher_id):
     """delete teacher account"""
     teacher = Teacher.query.filter_by(public_id = teacher_id).first()
@@ -512,7 +512,7 @@ def  get_course_by_id(course_id):
         'course': output
     }), 200
 
-@app.route('/api/course/<course_id>/teacher/<teacher_id>', methods = ['DELETE', 'POST'])
+@app.route('/api/course/<course_id>/teacher/<teacher_id>', methods = ['DELETE'])
 def delete_course_by_teacher(course_id, teacher_id):
     teacher = Teacher.query.filter_by(public_id = teacher_id).first()
     if not teacher:
@@ -594,7 +594,7 @@ def register_course():
             'message': 'Course cannot be created'
         }), 400
 
-@app.route('/api/course/<course_id>/teacher/<teacher_id>', methods = ['PUT'])
+@app.route('/api/course/<course_id>/teacher/<teacher_id>', methods = ['PUT', 'POST'])
 def update_course(course_id, teacher_id):
     """updates course information, assume that everything is being updated"""
     teacher = Teacher.query.filter_by(public_id = teacher_id).first()
@@ -662,4 +662,31 @@ def update_course(course_id, teacher_id):
             'status': 'fail',
             'message': 'Unable to update course information'
         }), 400
+
+
+### Experiment
+@app.route('/api/experiment/teacher/<teacher_id>', methods = ['GET'])
+def get_teacher_experiments(teacher_id):
+    """get teacher's experiments list"""
+    pass
+
+@app.route('/api/experiment/<experiment_id>/teacher/<teacher_id>', methods = ['GET'])
+def get_experiment_by_id(teacher_id, experiment_id):
+    """get specific experiment"""
+    pass
+
+@app.route('/api/experiment/<experiment_id>/teacher/<teacher_id>', methods = ['DELETE'])
+def delete_experiment(teacher_id, experiment_id):
+    """delete experiment"""
+    pass
+
+@app.route('/api/experiment/teacher/<teacher_id>', methods = ['POST'])
+def create_experiment(teacher_id):
+    """create new experiment"""
+    pass
+
+@app.route('/api/experiment/<experiment_id>/teacher/<teacher_id>', methods = ['PUT', 'POST'])
+def update_experiment(teacher_id, experiment_id):
+    """update experiment"""
+    pass
 
