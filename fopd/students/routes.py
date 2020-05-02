@@ -274,6 +274,12 @@ def student_login():
                 'lname': student.lname,
                 'username': student.username,
                 'id': student.public_id
+            },
+            'teacher': {
+                'fname': student.teacher.fname,
+                'lname': student.teacher.lname,
+                'username': student.teacher.username,
+                'id': student.teacher.public_id
             }
         }), SUCCESS_CODE
 

@@ -79,16 +79,16 @@ def get_experiment_by_id(teacher_id, experiment_id):
             'message': 'Teacher does not have permissions to access experiment'
         }), ERROR_CODE
 
-    students = []
-    for student in experiment.students:
-        student_output = {
-            'fname': student.fname,
-            'lname': student.lname,
-            'username': student.username,
-            'id': student.public_id
-        }
+    # students = []
+    # for student in experiment.students:
+    #     student_output = {
+    #         'fname': student.fname,
+    #         'lname': student.lname,
+    #         'username': student.username,
+    #         'id': student.public_id
+    #     }
 
-        students.append(student_output)
+    #     students.append(student_output)
 
     experiment_output = {
         'title': experiment.title,
@@ -101,8 +101,8 @@ def get_experiment_by_id(teacher_id, experiment_id):
             'lname': teacher.lname,
             'id': teacher.public_id,
             'username': teacher.username
-        },
-        'students': students
+        }
+        # 'students': students
     }
 
     return jsonify({
@@ -185,7 +185,8 @@ def create_experiment(teacher_id):
         student = Student.query.filter_by(username = student_username).first()
 
         if student:
-            experiment.students.append(student)
+            student.experiments.append(experiment)
+            # experiment.students.append(student)
 
             output = {
                 'fname': student.fname,
@@ -256,6 +257,7 @@ def update_experiment(teacher_id, experiment_id):
         student = Student.query.filter_by(username = student_username).first()
 
         if student:
+            # student.experiments.append(experiment)
             experiment.students.append(student)
 
             output = {
@@ -304,16 +306,36 @@ def update_experiment(teacher_id, experiment_id):
             'message': 'Unable to update course information'
         }), ERROR_CODE
 
-# @experiments.route('/api/experiment/student/<student_id>', methods = ['GET'])
-# def get_all_student_experiments(student_id):
-#     """get all student's experiments"""
-#     student = Student.query.filter_by(public_id = student_id).first()
-#     if not student:
-#         return jsonify({
-#             'status': 'fail',
-#             'message': f'Account id `{student_id}` does not exist'
-#         }), ERROR_CODE
+@experiments.route('/api/experiment/student/<student_id>', methods = ['GET'])
+def get_all_student_experiments(student_id):
+    """get all student's experiments"""
+    student = Student.query.filter_by(public_id = student_id).first()
+    if not student:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Account id `{student_id}` does not exist'
+        }), ERROR_CODE
 
-#     # experiments = Experiment
+    experiments_output = []
+    for experiment in student.experiments:
+        output = {
+            'id': experiment.public_id,
+            'title': experiment.title,
+            'description': experiment.description,
+            'plant': experiment.plant,
+            'start_date': experiment.start_date,
+            'teacher': {
+                'fname': experiment.teacher.fname,
+                'lname': experiment.teacher.lname,
+                'username': experiment.teacher.username,
+                'id': experiment.teacher.public_id
+            }
+        }
 
-#     # pass
+        experiments_output.append(output)
+
+    return jsonify({
+        'status': 'success',
+        'num_experiments': len(experiments_output),
+        'experiments': experiments_output
+    }), SUCCESS_CODE

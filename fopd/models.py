@@ -30,6 +30,11 @@ student_assignments = db.Table('student_assignmetns',
     db.Column('student_id', db.Integer, db.ForeignKey('student.id'), nullable = False)
 )
 
+student_experiments = db.Table('student_experiments',
+    db.Column('experiment_id', db.Integer, db.ForeignKey('experiment.id'), nullable = False),
+    db.Column('student_id', db.Integer, db.ForeignKey('student.id'), nullable = False)
+)
+
 class Student(db.Model):
     __tablename__ = 'student'
 
@@ -42,17 +47,19 @@ class Student(db.Model):
 
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable = False)
     course_id = db.Column(db.Integer, db.ForeignKey('course.id')) #, nullable = False)  # uncomment later
-    experiment_id = db.Column(db.Integer, db.ForeignKey('experiment.id')) #, nullable = False) # ask
+    # experiment_id = db.Column(db.Integer, db.ForeignKey('experiment.id')) #, nullable = False) # ask
 
     assignments = db.relationship('Assignment', secondary = student_assignments, lazy = 'subquery', backref = db.backref('students', lazy = True))
     assignment_responses = db.relationship('AssignmentResponse', backref = 'student', lazy = True, cascade = 'all, delete-orphan')
+    experiments = db.relationship('Experiment', secondary = student_experiments, lazy = 'subquery', backref = db.backref('students', lazy = True))
     # experiments = db.relationship('Experiment', backref = )
 
     def __repr__(self):
-        return f'<Student("{self.username}", "{self.public_id}")>'
+        return f'<Student("{self.username}", "{self.fname}", "{self.public_id}")>'
 
     # def __eq__(self, other):
     #     return self._id == other._id and self.public_id == other.public_id
+
 
 class Course(db.Model):
     __tablename__ = 'course'
@@ -68,6 +75,7 @@ class Course(db.Model):
     def __repr__(self):
         return f'<Course("{self.name}", "{self.public_id}", "{self.students[:4]}")>'
 
+
 class Experiment(db.Model):
     __tablename__ = 'experiment'
 
@@ -79,8 +87,7 @@ class Experiment(db.Model):
     public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
 
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable = False)
-
-    students = db.relationship('Student', backref = 'experiment', lazy = False)
+    # students = db.relationship('Student', backref = 'experiment', lazy = False)
 
     def __repr__(self):
         return f'<Experiment("{self.title}", "{self.start_date}", "{self.public_id}", "{self.students[:4]}")>'
