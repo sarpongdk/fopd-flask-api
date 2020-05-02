@@ -28,6 +28,8 @@ def create_app(config_object = Config):
     from fopd.courses.routes import courses
     from fopd.assignments.routes import assignments
     from fopd.assignment_responses.routes import assignment_responses
+    from fopd.devices.routes import devices
+    from fopd.observations.routes import observations
 
     app.register_blueprint(students)
     app.register_blueprint(teachers)
@@ -35,6 +37,8 @@ def create_app(config_object = Config):
     app.register_blueprint(courses)
     app.register_blueprint(assignments)
     app.register_blueprint(assignment_responses)
+    app.register_blueprint(devices)
+    app.register_blueprint(observations)
 
     return app
 
