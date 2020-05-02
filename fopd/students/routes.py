@@ -268,7 +268,13 @@ def student_login():
         return jsonify({
             'status': 'success',
             'message': 'Logged in',
-            'token': token
+            'token': str(uuid.uuid1()),
+            'student': {
+                'fname': student.fname,
+                'lname': student.lname,
+                'username': student.username,
+                'id': student.public_id
+            }
         }), SUCCESS_CODE
 
     return jsonify({

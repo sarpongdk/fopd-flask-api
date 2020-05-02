@@ -227,7 +227,13 @@ def teacher_login():
         return jsonify({
             'status': 'success',
             'message': 'Logged in',
-            'token': str(uuid.uuid1())
+            'token': str(uuid.uuid1()),
+            'teacher': {
+                'fname': teacher.fname,
+                'lname': teacher.lname,
+                'username': teacher.username,
+                'id': teacher.public_id
+            }
         }), SUCCESS_CODE
 
     return jsonify({

@@ -46,6 +46,7 @@ class Student(db.Model):
 
     assignments = db.relationship('Assignment', secondary = student_assignments, lazy = 'subquery', backref = db.backref('students', lazy = True))
     assignment_responses = db.relationship('AssignmentResponse', backref = 'student', lazy = True, cascade = 'all, delete-orphan')
+    # experiments = db.relationship('Experiment', backref = )
 
     def __repr__(self):
         return f'<Student("{self.username}", "{self.public_id}")>'

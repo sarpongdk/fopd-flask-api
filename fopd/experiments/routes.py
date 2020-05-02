@@ -304,3 +304,16 @@ def update_experiment(teacher_id, experiment_id):
             'message': 'Unable to update course information'
         }), ERROR_CODE
 
+# @experiments.route('/api/experiment/student/<student_id>', methods = ['GET'])
+# def get_all_student_experiments(student_id):
+#     """get all student's experiments"""
+#     student = Student.query.filter_by(public_id = student_id).first()
+#     if not student:
+#         return jsonify({
+#             'status': 'fail',
+#             'message': f'Account id `{student_id}` does not exist'
+#         }), ERROR_CODE
+
+#     # experiments = Experiment
+
+#     # pass
