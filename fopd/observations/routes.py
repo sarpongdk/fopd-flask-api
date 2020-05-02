@@ -108,7 +108,66 @@ def delete_observation(observation_id):
 @observations.route('/api/observation', methods = ['POST'])
 def create_observation():
     """create new observation"""
-    pass
+    observation_info = request.json
+    if not observation_info:
+        return jsonify({
+            'status': 'fail',
+            'message': f'No observation information provided'
+        }), ERROR_CODE
+
+    experiment_id = observation_info.get('experiment_id', None)
+    if not experiment_id:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Cannot create observation without experiment. Provide experiment id'
+        }), ERROR_CODE
+
+    student_ids = observation_info.get('student_ids', None)
+    if not student_ids:
+        return jsonify({
+            'status': 'fail',
+            'message': f'No student collaborator information provided'
+        }), ERROR_CODE  
+
+    experiment = Experiment.query.filter_by(public_id = experiment_id)
+    student_collaborators = []
+
+    for student_id in student_ids:
+        student = Student.query.filter_by(public_id = student_id).first()
+
+        if student:
+            student_collaborators.append(student)
+
+    observation = Observation(
+        title = observation_info.get('title', 'No title'),
+        description = observation_info.get('description', 'No description'),
+        type = observation_info['type'],
+        units = observation_info['units'],
+        updated = datetime.datetime.utcnow(),
+        public_id = str(uuid.uuid4()),
+        experiment = experiment,
+        student_collaborators = student_collaborators
+    )
+
+    try:
+        db.session.add(observation)
+        db.session.commit()
+        return jsonify({
+            'status': 'success',
+            'title': observation.title,
+            'description': observation.description,
+            'updated': observation.updated,
+            'units': observation.units,
+            'type': observation.type,
+            'id': observation.public_id
+        }), SUCCESS_CODE
+
+    except Exception as e:
+        print(e)
+        return jsonify({
+            'status': 'fail',
+            'message': 'Unable to create observation'
+        }), ERROR_CODE
 
 @observations.route('/api/observation/<observation_id>', methods = ['PUT', 'POST'])
 def update_observation(observation_id):
