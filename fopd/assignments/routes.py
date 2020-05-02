@@ -60,7 +60,7 @@ def get_all_teacher_assignments(teacher_id):
             'message': 'Account does not exist'
         }), ERROR_CODE
 
-    assignments = teacher.assignments
+    assignments = teacher.assigned_assignments
     assignment_output = []
     for assignment in assignments:
 
