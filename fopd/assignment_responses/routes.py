@@ -89,18 +89,18 @@ def get_student_assignment_responses_by_assignment_id(student_id, assignment_id)
             'description': assignment.description,
             'type': assignment.type,
             'due_date': assignment.due_date
-        }
-    }
-
-    return jsonify({
-        'status': 'success',
-        'assignment_response': response_output,
+        },
         'student': {
             'id': student.public_id,
             'fname': student.fname,
             'lname': student.lname,
             'username': student.username
         }
+    }
+
+    return jsonify({
+        'status': 'success',
+        'assignment_response': response_output
     }), SUCCESS_CODE
 
 @assignment_responses.route('/api/assignment/<assignment_id>/response/<assignment_response_id>/student/<student_id>', methods = ['PUT', 'POST'])

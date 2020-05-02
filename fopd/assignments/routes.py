@@ -155,9 +155,9 @@ def create_assignment(teacher_id):
 
     assignment.teacher = teacher
     student_list = []
-    student_usernames = assignment_info.get('student_usernames', [])
-    for student_username in student_usernames:
-        student = Student.query.filter_by(username = student_username).first()
+    student_ids = assignment_info.get('student_ids', [])
+    for student_id in student_ids:
+        student = Student.query.filter_by(public_id = student_id).first()
         #student.assignments.append(assignment)
 
         print(student)

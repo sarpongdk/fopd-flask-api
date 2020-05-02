@@ -290,12 +290,12 @@ def update_course(course_id, teacher_id):
             'message': f'No course information provided to update course `{course_id}`'
         }), ERROR_CODE
 
-    student_usernames = course_info.get('student_usernames', [])
+    student_ids = course_info.get('student_ids', [])
 
     course.students = []
     student_output = []
-    for student_username in student_usernames:
-        student = Student.query.filter_by(username = student_username).first()
+    for student_id in student_ids:
+        student = Student.query.filter_by(public_id = student_id).first()
 
         if student:
             course.students.append(student)
