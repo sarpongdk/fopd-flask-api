@@ -1,7 +1,6 @@
 import json
 
-from fopd.main.model.observation import Observation
-from fopd.main.service.http_service import HttpService
+from fopd.services.http_service import HttpService
 
 class JsonParser(object):
    def __init__(self):
@@ -20,10 +19,10 @@ class JsonParser(object):
          attribute = parsed['attribute']
          value = parsed['value']
          units = parsed['units']
-         observation = Observation(deviceId, timestamp, subject, attribute, value, units, deviceName, subjectId)
-         observations.append(observation)
-         #print(observation)
-      return observations
+      #    observation = Observation(deviceId, timestamp, subject, attribute, value, units, deviceName, subjectId)
+      #    observations.append(observation)
+      #    #print(observation)
+      # return observations
 
       
 if __name__ == "__main__":

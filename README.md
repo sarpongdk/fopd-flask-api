@@ -4,6 +4,8 @@ This RESTful backend web service is developed to abstract nuances and nitty-grit
 
 ### Usage
 
+#### Linux/Unix OS
+
 <!-- A `.env` should be created in the following directory beforehand `./fopd`. If not, I have a script called `initialize.py` to automate the creation of the dotenv file in that directory. To run that script, execute:
 
 ```
@@ -14,6 +16,12 @@ Create a virtual environment with:
 
 ```
 python3 -m venv _dir_name_here_
+```
+
+Upon creating the virtual environment, navigate to it via the command:
+
+```
+cd _dir_name_here_
 ```
 
 Install the necessary dependencies for the project to run after setting up a virtual environment. Run:

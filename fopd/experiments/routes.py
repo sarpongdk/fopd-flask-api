@@ -79,16 +79,16 @@ def get_experiment_by_id(teacher_id, experiment_id):
             'message': 'Teacher does not have permissions to access experiment'
         }), ERROR_CODE
 
-    # students = []
-    # for student in experiment.students:
-    #     student_output = {
-    #         'fname': student.fname,
-    #         'lname': student.lname,
-    #         'username': student.username,
-    #         'id': student.public_id
-    #     }
+    students = []
+    for student in experiment.students:
+        student_output = {
+            'fname': student.fname,
+            'lname': student.lname,
+            'username': student.username,
+            'id': student.public_id
+        }
 
-    #     students.append(student_output)
+        students.append(student_output)
 
     experiment_output = {
         'title': experiment.title,
@@ -101,8 +101,8 @@ def get_experiment_by_id(teacher_id, experiment_id):
             'lname': teacher.lname,
             'id': teacher.public_id,
             'username': teacher.username
-        }
-        # 'students': students
+        },
+        'students': students
     }
 
     return jsonify({
