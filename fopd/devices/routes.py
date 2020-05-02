@@ -127,7 +127,7 @@ def register_device():
         db.session.add(device)
         db.session.commit()
         return jsonify({
-            'status': 'fail',
+            'status': 'success',
             'message': f'Successfully created',
             'device': {
                 'name': device.name,
