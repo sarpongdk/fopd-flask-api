@@ -16,6 +16,7 @@ class Teacher(db.Model):
     courses = db.relationship('Course', backref = 'teacher', lazy = True, cascade = 'all, delete-orphan')
     experiments = db.relationship('Experiment', backref = 'teacher', lazy = True, cascade = 'all, delete-orphan')
     assigned_assignments = db.relationship('Assignment', backref = 'teacher', lazy = True, cascade = 'all, delete-orphan')
+    devices = db.relationship('Device', backref = 'teacher', lazy = True) # do not cascade
 
     def __repr__(self):
         return f'<Teacher("{self.username}", "{self.public_id}")>'
@@ -25,7 +26,7 @@ class Teacher(db.Model):
 
 ### Many to many
 ### Student assignments
-student_assignments = db.Table('student_assignmetns',
+student_assignments = db.Table('student_assignments',
     db.Column('assignment_id', db.Integer, db.ForeignKey('assignment.id'), nullable = False),
     db.Column('student_id', db.Integer, db.ForeignKey('student.id'), nullable = False)
 )
@@ -60,6 +61,19 @@ class Student(db.Model):
     # def __eq__(self, other):
     #     return self._id == other._id and self.public_id == other.public_id
 
+class Device(db.Model):
+    __tablename__ = "device"
+
+    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    name = db.Column(db.String(50), nullable = False)
+    public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
+
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id')) # can be null
+
+    experiments = db.relationship('Experiment', backref = 'device', lazy = True, cascade = 'all, delete-orphan')
+
+    def __repr__(self):
+        return f'<Device("{self.name}")>'
 
 class Course(db.Model):
     __tablename__ = 'course'
@@ -87,6 +101,7 @@ class Experiment(db.Model):
     public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
 
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable = False)
+    device_id = db.Column(db.Integer, db.ForeignKey('device.id'), nullable = False)
     # students = db.relationship('Student', backref = 'experiment', lazy = False)
 
     def __repr__(self):

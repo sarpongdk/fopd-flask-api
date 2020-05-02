@@ -41,8 +41,8 @@ def get_teacher_by_id(teacher_id):
     if not teacher:
         return jsonify({
             'status': 'fail',
-            'message': 'Account with id {teacher_id} does not exist'
-        })
+            'message': f'Account with id {teacher_id} does not exist'
+        }), ERROR_CODE
 
     output = {
         "username": teacher.username,
@@ -238,5 +238,5 @@ def teacher_login():
 
     return jsonify({
             'status': 'fail',
-            'message': f'Invalid password'
+            'message': 'Invalid password'
         }), ERROR_CODE
