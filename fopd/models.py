@@ -102,6 +102,8 @@ class Experiment(db.Model):
 
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable = False)
     device_id = db.Column(db.Integer, db.ForeignKey('device.id'), nullable = False)
+
+    observations = db.relationship('Observation', backref = 'experiment', lazy = True, cascade = 'all, delete-orphan')
     # students = db.relationship('Student', backref = 'experiment', lazy = False)
 
     def __repr__(self):
@@ -143,3 +145,28 @@ class AssignmentResponse(db.Model):
 
     def __repr__(self):
         return f'<AssignmentResponse("{self.response}", "{self.student.username}", "{self.public_id}")>'
+
+
+# observation_responses = db.Table('observation_responses', 
+#     db.Column('experiment_id', db.Integer, db.ForeignKey('experiment.id'), nullable = False),
+#     db.Column('observation_id', db.Integer, db.ForeignKey('observation.id'), nullable = False)
+# )
+
+collaborators = db.Table('collaborators', 
+    db.Column('observation_id', db.Integer, db.ForeignKey('observation.id'), nullable = False),
+    db.Column('student_id', db.Integer, db.ForeignKey('student.id'), nullable = False)
+)
+
+class Observation(db.Model):
+    __tablename__ = 'observation'
+
+    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    title = db.Column(db.String(50), nullable = False)
+    type = db.Column(db.String(30), nullable = False)
+    description = db.Column(db.Text, nullable = False)
+    units = db.Column(db.String(30), nullable = False)
+    updated = db.Column(db.DateTime, nullable = False, default = datetime.datetime.utcnow)
+    public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
+
+    experiment_id = db.Column(db.Integer, db.ForeignKey('experiment.id'), nullable = False)
+    student_collaborators = db.relationship('Student', secondary = collaborators, lazy = 'subquery', backref = db.backref('observations', lazy = True))
