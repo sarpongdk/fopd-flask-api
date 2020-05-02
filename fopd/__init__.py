@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS
 #from flask_migrate import Migrate
 
 from fopd.config import Config
@@ -8,6 +9,7 @@ from fopd.config import Config
 # use same object with different apps
 db = SQLAlchemy()
 bcrypt = Bcrypt()
+cors = CORS()
 #migrate = Migrate()
 
 def create_app(config_object = Config):
@@ -17,6 +19,7 @@ def create_app(config_object = Config):
     # initialize object
     db.init_app(app)
     #migrate.init_app(app, db)
+    cors.init_app(app, resources={r"*": {"origins": "*"}})
     bcrypt.init_app(app)
 
     from fopd.students.routes import students
