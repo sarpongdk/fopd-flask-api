@@ -138,7 +138,7 @@ class AssignmentResponse(db.Model):
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
     response = db.Column(db.Text, nullable = False)
     submitted = db.Column(db.Date, nullable = False, default = datetime.date.today)
-    comments = db.Column(db.Text)
+    comments = db.Column(db.Text, default = '')
     public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
 
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable = False)

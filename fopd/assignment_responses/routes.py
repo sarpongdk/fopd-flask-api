@@ -103,6 +103,71 @@ def get_student_assignment_responses_by_assignment_id(student_id, assignment_id)
         'assignment_response': response_output
     }), SUCCESS_CODE
 
+
+@assignment_responses.route('/api/assignment/<assignment_id>/response', methods = ['POST'])
+def create_assignment_response(assignment_id):
+    """create an assignment response"""
+    assignment = Assignment.query.filter_by(public_id = assignment_id).first()
+    if not assignment:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Assignment id `{assignment_id}` does not exist'
+        }), ERROR_CODE
+
+    info = request.json
+    if not info:
+        return jsonify({
+            'status': 'fail',
+            'message': 'No information provided'
+        }), ERROR_CODE
+    
+    student_id = info.get('student_id', None)
+    if not student_id:
+        return jsonify({
+            'status': 'fail',
+            'message': 'No student id provided. Cannot create assignment response without student'
+        }), ERROR_CODE
+
+    student = Student.query.filter_by(public_id = student_id).first()
+    if not student:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Student id `{student_id}` does not exist'
+        }), ERROR_CODE
+
+    response = AssignmentResponse(
+        public_id = str(uuid.uuid4()),
+        response = info.get('response', ''),
+        comments = info.get('comments', ''),
+    )
+
+    response.assignment = assignment
+    response.student = student
+
+    try:
+        db.session.add(response)
+        db.session.commit()
+        return jsonify({
+            'status': 'success',
+            'assignment_response': {
+                'id': response.public_id,
+                'comments': response.comments,
+                'response': response.response,
+                'student': {
+                    'id': student.public_id,
+                    'username': student.username,
+                    'fname': student.fname
+                }
+            }
+        }), SUCCESS_CODE
+    except Exception as e:
+        print(e)
+        return jsonify({
+            'status': 'fail',
+            'message': 'Assignment response not created'
+        }), ERROR_CODE
+
+
 @assignment_responses.route('/api/assignment/<assignment_id>/response/<assignment_response_id>/student/<student_id>', methods = ['PUT', 'POST'])
 def update_student_response(assignment_id, student_id, assignment_response_id):
     """update student assignment response"""
@@ -206,4 +271,3 @@ def add_comment_to_assignment_response(teacher_id, assignment_id, assignment_res
         }), ERROR_CODE
 
     pass
-
