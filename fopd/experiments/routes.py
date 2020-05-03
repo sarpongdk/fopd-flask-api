@@ -44,7 +44,11 @@ def get_teacher_experiments(teacher_id):
             'start_date': str(experiment.start_date),
             'id': experiment.public_id,
             'students': students,
-            'num_students': len(students)
+            'num_students': len(students),
+            'device': {
+                'id': experiment.device.public_id,
+                'name': experiment.device.name
+            }
         }
 
         experiments.append(output)
@@ -102,7 +106,11 @@ def get_experiment_by_id(teacher_id, experiment_id):
             'id': teacher.public_id,
             'username': teacher.username
         },
-        'students': students
+        'students': students,
+        'device': {
+            'id': experiment.device.public_id,
+            'name': experiment.device.name
+        }
     }
 
     return jsonify({
@@ -230,6 +238,10 @@ def create_experiment(teacher_id):
                     'id': experiment.teacher.public_id
                 },
                 'students': student_output
+            },
+            'device': {
+                'id': experiment.device.public_id,
+                'name': experiment.device.name
             }
         }), SUCCESS_CODE
     except Exception as e:
@@ -311,6 +323,10 @@ def update_experiment(teacher_id, experiment_id):
                     'username': teacher.username,
                     'id': teacher.public_id
                 }
+            },
+            'device': {
+                'id': experiment.device.public_id,
+                'name': experiment.device.name
             }
         }), SUCCESS_CODE
     except Exception as e:
@@ -343,6 +359,10 @@ def get_all_student_experiments(student_id):
                 'lname': experiment.teacher.lname,
                 'username': experiment.teacher.username,
                 'id': experiment.teacher.public_id
+            },
+            'device': {
+                'id': experiment.device.public_id,
+                'name': experiment.device.name
             }
         }
 
