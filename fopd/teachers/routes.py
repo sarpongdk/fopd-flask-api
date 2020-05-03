@@ -67,10 +67,10 @@ def update_teacher_account(teacher_id):
             'message': 'No account information provided'
         }), ERROR_CODE
 
-    username = update_info['username']
-    password = update_info['password']
-    fname = update_info.get('fname', 'No name')
-    lname = update_info.get('lname', 'No name')
+    username = update_info.get('username', None)
+    password = update_info.get('password', None)
+    fname = update_info.get('fname', None)
+    lname = update_info.get('lname', None)
 
     # check if account exists
     teacher = Teacher.query.filter_by(public_id = teacher_id).first()
@@ -81,10 +81,18 @@ def update_teacher_account(teacher_id):
         }), ERROR_CODE
 
     # update teacher account
-    teacher.username = username
-    teacher.password = bcrypt.generate_password_hash(password).decode('utf-8')
-    teacher.fname = fname
-    teacher.lname = lname
+    if username:
+        teacher.username = username
+
+    if password:
+        encoded_password = password.encode('utf-8')
+        teacher.password = bcrypt.generate_password_hash(encoded_password).decode('utf-8')
+    
+    if fname:
+        teacher.fname = fname
+
+    if lname:
+        teacher.lname = lname
 
     output = {
         "username": teacher.username,

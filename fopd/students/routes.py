@@ -181,10 +181,10 @@ def update_student_account(student_id):
             'message': 'No account information provided'
         }), ERROR_CODE
 
-    username = update_info['username']
-    password = update_info['password']
-    fname = update_info.get('fname', 'No name')
-    lname = update_info.get('lname', 'No name')
+    username = update_info.get('username', None)
+    password = update_info.get('password', None)
+    fname = update_info.get('fname', None)
+    lname = update_info.get('lname', None)
     teacher_username = update_info.get('teacher_username', None)
 
     # check if account exists
@@ -207,10 +207,18 @@ def update_student_account(student_id):
         student.teacher = new_teacher
 
     # update teacher account
-    student.username = username
-    student.password = bcrypt.generate_password_hash(password).decode('utf-8')
-    student.fname = fname
-    student.lname = lname
+    if username:
+        student.username = username
+
+    if password:
+        encoded_password = password.encode('utf-8')
+        student.password = bcrypt.generate_password_hash(encoded_password).decode('utf-8')
+    
+    if fname:
+        student.fname = fname
+
+    if lname:
+        student.lname = lname
 
     output = {
         "username": student.username,
