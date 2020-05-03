@@ -48,7 +48,7 @@ def get_all_students_by_teacher(teacher_id):
             'fname': student.fname,
             'lname': student.lname,
             'username': student.username,
-            'public_id': student.public_id
+            'id': student.public_id
         }
         output.append(student_output)
     
@@ -188,7 +188,7 @@ def update_student_account(student_id):
     teacher_username = update_info.get('teacher_username', None)
 
     # check if account exists
-    student = Student.query.filter_by(username = username).first()
+    student = Student.query.filter_by(public_id = student_id).first()
     if not student:
         return jsonify({
             'status': 'fail',
