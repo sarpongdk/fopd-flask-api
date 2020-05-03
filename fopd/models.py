@@ -97,7 +97,7 @@ class Experiment(db.Model):
     title = db.Column(db.String(80), nullable = False)
     description = db.Column(db.Text, nullable = False)
     plant = db.Column(db.String(50), nullable = False)
-    start_date = db.Column(db.DateTime, nullable = False, default = datetime.datetime.utcnow)
+    start_date = db.Column(db.Date, nullable = False, default = datetime.date.today)
     public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
 
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable = False)
@@ -117,7 +117,7 @@ class Assignment(db.Model):
     title = db.Column(db.String(100), nullable = False)
     description = db.Column(db.Text, nullable = False)
     type = db.Column(db.String(50), nullable = False)
-    due_date = db.Column(db.DateTime, nullable = False, default = datetime.datetime.utcnow)
+    due_date = db.Column(db.Date, nullable = False, default = datetime.date.today)
     public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
 
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable = False)
@@ -136,7 +136,7 @@ class AssignmentResponse(db.Model):
 
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
     response = db.Column(db.Text, nullable = False)
-    submitted = db.Column(db.DateTime, nullable = False, default = datetime.datetime.utcnow)
+    submitted = db.Column(db.Date, nullable = False, default = datetime.date.today)
     comments = db.Column(db.Text)
     public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
 
@@ -165,7 +165,7 @@ class Observation(db.Model):
     type = db.Column(db.String(30), nullable = False)
     description = db.Column(db.Text, nullable = False)
     units = db.Column(db.String(30), nullable = False)
-    updated = db.Column(db.DateTime, nullable = False, default = datetime.datetime.utcnow)
+    updated = db.Column(db.Date, nullable = False, default = datetime.date.today)
     public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
 
     experiment_id = db.Column(db.Integer, db.ForeignKey('experiment.id'), nullable = False)

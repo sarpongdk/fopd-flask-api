@@ -187,7 +187,7 @@ def create_experiment(teacher_id):
         description = experiment_info.get('description', 'No description'),
         plant = experiment_info['plant'],
         public_id = str(uuid.uuid4()),
-        start_date = experiment_info.get('start_date', datetime.datetime.utcnow())
+        start_date = experiment_info.get('start_date', datetime.date.today())
     )
     experiment.teacher = teacher
     experiment.device = device

@@ -143,7 +143,7 @@ def create_observation():
         description = observation_info.get('description', 'No description'),
         type = observation_info['type'],
         units = observation_info['units'],
-        updated = datetime.datetime.utcnow(),
+        updated = datetime.date.today(),
         public_id = str(uuid.uuid4()),
         experiment = experiment,
         student_collaborators = student_collaborators

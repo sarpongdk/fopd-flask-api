@@ -123,7 +123,7 @@ def update_student_response(assignment_id, student_id, assignment_response_id):
     new_response = assignment_info.get('response', None)
     if new_response:
         assignment_response.response = assignment_info.get('response', '')
-        assignment_response.submitted = datetime.datetime.utcnow()
+        assignment_response.submitted = datetime.date.today()
 
     new_comments = assignment_info.get('comments', '')
     if new_comments:
