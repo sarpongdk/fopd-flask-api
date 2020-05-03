@@ -169,8 +169,8 @@ def create_experiment(teacher_id):
         }), ERROR_CODE
 
     experiment = Experiment(
-        title = experiment_info['title'],
-        description = experiment_info['description'],
+        title = experiment_info.get('title', 'No title'),
+        description = experiment_info.get('description', 'No description'),
         plant = experiment_info['plant'],
         public_id = str(uuid.uuid4()),
         start_date = experiment_info.get('start_date', datetime.datetime.utcnow())
@@ -220,7 +220,8 @@ def create_experiment(teacher_id):
         print(e)
         return jsonify({
             'status': 'fail',
-            'message': 'Unable to create experiment'
+            'message': 'Unable to create experiment',
+            'error': str(e)
         }), ERROR_CODE
 
 @experiments.route('/api/experiment/<experiment_id>/teacher/<teacher_id>', methods = ['PUT', 'POST'])
@@ -275,9 +276,14 @@ def update_experiment(teacher_id, experiment_id):
             'message': 'Unable to update course information'
         }), ERROR_CODE
 
-    experiment.title = experiment_info['title']
-    experiment.plant = experiment_info['plant']
-    experiment.description = experiment_info['description']
+    if experiment_info.get('title', None):
+        experiment.title = experiment_info['title']
+
+    if experiment_info.get('plant', None):
+        experiment.plant = experiment_info['plant']
+
+    if experiment_info.get('description', None):
+        experiment.description = experiment_info['description']
 
     try:
         db.session.add(experiment)
