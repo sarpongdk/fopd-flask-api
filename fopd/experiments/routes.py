@@ -41,7 +41,7 @@ def get_teacher_experiments(teacher_id):
             'title': experiment.title,
             'description': experiment.description,
             'plant': experiment.plant,
-            'start_date': experiment.start_date,
+            'start_date': str(experiment.start_date),
             'id': experiment.public_id,
             'students': students,
             'num_students': len(students)
@@ -94,7 +94,7 @@ def get_experiment_by_id(teacher_id, experiment_id):
         'title': experiment.title,
         'description': experiment.description,
         'plant': experiment.plant,
-        'start_date': experiment.start_date,
+        'start_date': str(experiment.start_date),
         'id': experiment.public_id,
         'teacher': {
             'fname': teacher.fname,
@@ -336,7 +336,7 @@ def get_all_student_experiments(student_id):
             'title': experiment.title,
             'description': experiment.description,
             'plant': experiment.plant,
-            'start_date': experiment.start_date,
+            'start_date': str(experiment.start_date),
             'teacher': {
                 'fname': experiment.teacher.fname,
                 'lname': experiment.teacher.lname,

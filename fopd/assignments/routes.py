@@ -31,7 +31,7 @@ def get_all_student_assignments(student_id):
             'title': assignment.title,
             'description': assignment.description,
             'type': assignment.type,
-            'due_date': assignment.due_date
+            'due_date': str(assignment.due_date)
         }
     
         assignment_output.append(output)
@@ -69,7 +69,7 @@ def get_all_teacher_assignments(teacher_id):
             'title': assignment.title,
             'description': assignment.description,
             'type': assignment.type,
-            'due_date': assignment.due_date
+            'due_date': str(assignment.due_date)
         }
     
         assignment_output.append(output)
@@ -124,7 +124,7 @@ def get_assignment_by_id(assignment_id):
             'title': assignment.title,
             'description': assignment.description,
             'type': assignment.type,
-            'due_date': assignment.due_date
+            'due_date': str(assignment.due_date)
         }
     }), SUCCESS_CODE
 
@@ -149,7 +149,7 @@ def create_assignment(teacher_id):
         title = assignment_info['title'],
         description = assignment_info['description'],
         type = assignment_info['type'],
-        due_date = assignment_info['due_date'],
+        due_date = str(assignment_info.get('due_date', datetime.date.today())),
         public_id = str(uuid.uuid4())
     )  
 
@@ -182,7 +182,7 @@ def create_assignment(teacher_id):
                 'title': assignment.title,
                 'description': assignment.description,
                 'type': assignment.type,
-                'due_date': assignment.due_date
+                'due_date': str(assignment.due_date)
             }, 
             'students': student_list,
             'num_students': len(student_list),
@@ -276,7 +276,7 @@ def update_assignment(teacher_id, assignment_id):
                 'title': assignment.title,
                 'description': assignment.description,
                 'type': assignment.type,
-                'due_date': assignment.due_date
+                'due_date': str(assignment.due_date)
             }, 
             'students': student_list, # + assignment.students,
             'num_students': len(student_list),

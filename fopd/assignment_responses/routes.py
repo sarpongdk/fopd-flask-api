@@ -26,7 +26,7 @@ def get_all_responses_by_assignment(assignment_id):
     for response in assignment.responses:  
         output.append({
             'id': response.public_id,
-            'submitted': response.submitted,
+            'submitted': str(response.submitted),
             'comments': response.comments or '',
             'student': {
                 'fname': response.student.fname,
@@ -80,7 +80,7 @@ def get_student_assignment_responses_by_assignment_id(student_id, assignment_id)
 
     response_output = {
         'id': assignment_response.public_id,
-        'submitted': assignment_response.submitted,
+        'submitted': str(assignment_response.submitted),
         'response': assignment_response.response,
         'comments': assignment_response.comments,
         'assignment': {
@@ -137,7 +137,7 @@ def update_student_response(assignment_id, student_id, assignment_response_id):
             'assignment_response': {
                 'response': assignment_response.response,
                 'comments': assignment_response.comments,
-                'submitted': assignment_response.submitted
+                'submitted': str(assignment_response.submitted)
             }
         }), SUCCESS_CODE
     except Exception as e:
@@ -189,7 +189,7 @@ def add_comment_to_assignment_response(teacher_id, assignment_id, assignment_res
                 'id': assignment_response.public_id,
                 'response': assignment_response.response,
                 'comments': assignment_response.comments,
-                'submitted': assignment_response.submitted,
+                'submitted': str(assignment_response.submitted),
                 'student': {
                     'id': assignment_response.student.public_id,
                     'fname': assignment_response.student.fname,

@@ -39,7 +39,7 @@ def get_all_observations_by_experiment(experiment_id):
             'id': observation.public_id,
             'description': observation.description,
             'units': observation.units,
-            'updated': observation.updated,
+            'updated': str(observation.updated),
             'type': observation.type,
             'collaborators': collaborators,
         })
@@ -76,7 +76,7 @@ def get_observation_by_id(observation_id):
             'id': observation.public_id,
             'description': observation.description,
             'units': observation.units,
-            'updated': observation.updated,
+            'updated': str(observation.updated),
             'type': observation.type,
             'collaborators': collaborators,    
         }
@@ -156,7 +156,7 @@ def create_observation():
             'status': 'success',
             'title': observation.title,
             'description': observation.description,
-            'updated': observation.updated,
+            'updated': str(observation.updated),
             'units': observation.units,
             'type': observation.type,
             'id': observation.public_id
