@@ -34,6 +34,7 @@ def get_all_observations_by_experiment(experiment_id):
                 'id': student.public_id
             })
 
+        experiment = observation.experiment
         observations.append({
             'title': observation.title,
             'id': observation.public_id,
@@ -42,6 +43,13 @@ def get_all_observations_by_experiment(experiment_id):
             'updated': str(observation.updated),
             'type': observation.type,
             'collaborators': collaborators,
+            'experiment': {
+                'title': experiment.title,
+                'description': experiment.description,
+                'plant': experiment.plant,
+                'id': experiment.public_id,
+                'start_date': str(experiment.start_date)
+            }
         })
 
     return jsonify({
@@ -69,6 +77,7 @@ def get_observation_by_id(observation_id):
             'id': student.public_id
         })
 
+    experiment = observation.experiment
     return jsonify({
         'status': 'success',
         'observation': {
@@ -78,7 +87,14 @@ def get_observation_by_id(observation_id):
             'units': observation.units,
             'updated': str(observation.updated),
             'type': observation.type,
-            'collaborators': collaborators,    
+            'collaborators': collaborators,   
+            'experiment': {
+                'title': experiment.title,
+                'description': experiment.description,
+                'plant': experiment.plant,
+                'id': experiment.public_id,
+                'start_date': str(experiment.start_date)
+            } 
         }
     }), SUCCESS_CODE
 
@@ -167,7 +183,14 @@ def create_observation():
             'units': observation.units,
             'type': observation.type,
             'id': observation.public_id,
-            'student_collaborators': collaborators_output
+            'student_collaborators': collaborators_output,
+            'experiment': {
+                'title': experiment.title,
+                'description': experiment.description,
+                'plant': experiment.plant,
+                'id': experiment.public_id,
+                'start_date': str(experiment.start_date)
+            }
         }), SUCCESS_CODE
 
     except Exception as e:
@@ -230,6 +253,7 @@ def update_observation(observation_id):
                 })
                 observation.append(student)
 
+    experiment = observation.experiment
     try:
         db.session.add(observation)
         db.session.commit()
@@ -241,7 +265,14 @@ def update_observation(observation_id):
             'units': observation.units,
             'type': observation.type,
             'id': observation.public_id,
-            'collaborators': student_collaborators
+            'collaborators': student_collaborators,
+            'experiment': {
+                'title': experiment.title,
+                'description': experiment.description,
+                'plant': experiment.plant,
+                'id': experiment.public_id,
+                'start_date': str(experiment.start_date)
+            }
         }), SUCCESS_CODE
 
     except Exception as e:
