@@ -266,8 +266,7 @@ def update_experiment(teacher_id, experiment_id):
         }), ERROR_CODE
 
     student_ids = experiment_info.get('student_ids', [])
-
-    experiment.students = []
+    
     student_output = []
     for student_id in student_ids:
         student = Student.query.filter_by(public_id = student_id).first()
@@ -283,13 +282,6 @@ def update_experiment(teacher_id, experiment_id):
                 'id': student.public_id
             }
             student_output.append(output)
-
-
-    if len(student_output) == 0:
-        return jsonify({
-            'status': 'fail',
-            'message': 'Unable to update course information'
-        }), ERROR_CODE
 
     if experiment_info.get('title', None):
         experiment.title = experiment_info['title']
