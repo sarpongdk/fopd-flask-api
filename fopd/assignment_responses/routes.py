@@ -71,7 +71,7 @@ def get_student_assignment_responses_by_assignment_id(student_id, assignment_id)
             'message': f'Assignment id `{assignment_id}` does not exist'
         }), ERROR_CODE
 
-    assignment_response = AssignmentResponse.query.filter_by(assignment_id = assignment_id, student_id = student_id).first()
+    assignment_response = AssignmentResponse.query.filter_by(assignment_id = assignment.id, student_id = student.id).first()
     if not assignment_response:
         return jsonify({
             'status': 'fail',

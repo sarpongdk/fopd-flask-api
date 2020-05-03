@@ -170,7 +170,9 @@ class Observation(db.Model):
     public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
 
     experiment_id = db.Column(db.Integer, db.ForeignKey('experiment.id'), nullable = False)
+
     student_collaborators = db.relationship('Student', secondary = collaborators, lazy = 'subquery', backref = db.backref('observations', lazy = True))
+    observation_responses = db.relationship('ObservationResponse', backref = 'observation', lazy = True)
 
 class ObservationResponse(db.Model):
     __tablename__ = 'observation_response'
@@ -179,5 +181,7 @@ class ObservationResponse(db.Model):
     response = db.Column(db.Text)
     submitted = db.Column(db.Date, nullable = False, default = datetime.date.today)
     editable = db.Column(db.Boolean, nullable = False, default = True)
+    public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
 
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable = False)
+    observation_id = db.Column(db.Integer, db.ForeignKey('observation.id'), nullable = False)
