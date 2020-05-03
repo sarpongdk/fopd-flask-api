@@ -316,5 +316,3 @@ def add_comment_to_assignment_response(teacher_id, assignment_id, assignment_res
             'status': 'fail',
             'message': f'Unable to add comments to assignment response `{assignment_response_id}`'
         }), ERROR_CODE
-
-    pass
