@@ -203,7 +203,21 @@ def create_assignment_response(assignment_id):
 @assignment_responses.route('/api/assignment/<assignment_id>/response/<assignment_response_id>/student/<student_id>', methods = ['PUT', 'POST'])
 def update_student_response(assignment_id, student_id, assignment_response_id):
     """update student assignment response"""
-    assignment_response = AssignmentResponse.query.filter_by(assignment_id = assignment_id, public_id = assignment_response_id, student_id = student_id).first()
+    assignment = Assignment.query.filter_by(public_id = assignment_id).first()
+    if not assignment:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Experiment does not exist'
+        }), ERROR_CODE
+
+    student = Student.query.filter_by(public_id = student_id).first()
+    if not student:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Student id `{student_id}` does not exist'
+        }), ERROR_CODE
+
+    assignment_response = AssignmentResponse.query.filter_by(assignment_id = assignment.id, public_id = assignment_response_id, student_id = student.id).first()
     if not assignment_response:
         return jsonify({
             'status': 'fail',
