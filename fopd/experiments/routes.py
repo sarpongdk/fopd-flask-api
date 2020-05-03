@@ -70,7 +70,7 @@ def get_experiment_by_id(teacher_id, experiment_id):
             'message': 'Account does not exist'
         }), ERROR_CODE
 
-    experiment = Experiment.query.filter_by(public_id = experiment_id)
+    experiment = Experiment.query.filter_by(public_id = experiment_id).first()
     if not experiment:
         return jsonify({
             'status': 'fail',
@@ -130,7 +130,7 @@ def delete_experiment(teacher_id, experiment_id):
             'message': 'Account does not exist'
         }), ERROR_CODE
 
-    experiment = Experiment.query.filter_by(public_id = experiment_id)
+    experiment = Experiment.query.filter_by(public_id = experiment_id).first()
     if not experiment:
         return jsonify({
             'status': 'fail',
