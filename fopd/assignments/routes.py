@@ -37,7 +37,7 @@ def get_all_student_assignments(student_id):
     return jsonify({
         'status': 'success',
         'length': len(assignment_output),
-        'assignments': assignments,
+        'assignments': assignment_output,
         'assignees': {
             'fname': student.fname,
             'lname': student.lname,
@@ -265,7 +265,7 @@ def update_assignment(teacher_id, assignment_id):
         student = Student.query.filter_by(public_id = student_id).first()
 
         if student:
-            # assignment.students.append(student)
+            assignment.students.append(student)
 
             output = {
                 'fname': student.fname,
