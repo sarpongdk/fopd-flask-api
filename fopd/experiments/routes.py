@@ -196,20 +196,21 @@ def create_experiment(teacher_id):
 
     experiment.students = []
     student_output = []
-    for student_id in student_ids:
-        student = Student.query.filter_by(public_id = student_id).first()
+    if student_ids:
+        for student_id in student_ids:
+            student = Student.query.filter_by(public_id = student_id).first()
 
-        if student:
-            student.experiments.append(experiment)
-            # experiment.students.append(student)
+            if student:
+                student.experiments.append(experiment)
+                # experiment.students.append(student)
 
-            output = {
-                'fname': student.fname,
-                'lname': student.lname,
-                'username': student.username,
-                'id': student.public_id
-            }
-            student_output.append(output)
+                output = {
+                    'fname': student.fname,
+                    'lname': student.lname,
+                    'username': student.username,
+                    'id': student.public_id
+                }
+                student_output.append(output)
 
     try:
         db.session.add(experiment)
