@@ -251,7 +251,7 @@ def update_observation(observation_id):
             'message': f'Unable to update observation id `{observation_id}`'
         }), ERROR_CODE
 
-
+@observations.route('/api/observation/<observation_id>/response', methods = ['POST'])
 def add_observation_response(observation_id):
     observation = Observation.query.filter_by(public_id = observation_id).first()
     if not observation:
@@ -320,6 +320,8 @@ def add_observation_response(observation_id):
 def update_observation_response(observation_id, student_id, response_id):
     pass
 
+
+@observations.route('/api/observation/<observation_id>/response/<response_id>', methods = ['DELETE'])
 def delete_observation_response(observation_id, response_id):
     observation = Observation.query.filter_by(public_id = observation_id).first()
     if not observation:
@@ -348,6 +350,7 @@ def delete_observation_response(observation_id, response_id):
             'message': f'Unable to delete observation response id `{response_id}`'
         }), ERROR_CODE
 
+@observations.route('/api/observation/<observation_id>/response/<response_id>', methods = ['PUT', 'POST'])
 def update_observation_response_lock(observation_id, response_id):
     observation = Observation.query.filter_by(public_id = observation_id).first()
     if not observation:

@@ -12,6 +12,38 @@ SUCCESS_CODE = 200
 
 
 ### Assignment Responses
+@assignment_responses.route('/api/assignment/<assignment_id>/response/<response_id>', methods = ['DELETE'])
+def delete_response(assignment_id, response_id):
+    assignment = Assignment.query.filter_by(public_id = assignment_id).first()
+    if not assignment:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Experiment does not exist'
+        }), ERROR_CODE
+
+    assignment_response = AssignmentResponse.query.filter_by(public_id = response_id).first()
+    if not assignment_response:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Assignment response with id `{response_id}` does not exist'
+        }), ERROR_CODE
+
+    try:
+        db.session.delete(assignment_response)
+        db.session.commit()
+        return jsonify({
+            'status': 'success',
+            'message': 'Assignment response has been deleted'
+        }), SUCCESS_CODE
+
+    except Exception as e:
+        print(e)
+        return jsonify({
+            'status': 'fail',
+            'message': 'Unable to delete assignment response'
+        }), ERROR_CODE
+
+
 @assignment_responses.route('/api/assignment/<assignment_id>/response', methods = ['GET'])
 def get_all_responses_by_assignment(assignment_id):
     """get assignment responses from assignment id"""
