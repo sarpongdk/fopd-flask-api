@@ -183,7 +183,7 @@ def update_device(device_id, teacher_id):
         db.session.add(device)
         db.session.commit()
         return jsonify({
-            'status': 'fail',
+            'status': 'success',
             'message': f'Successfully updated',
             'device': {
                 'name': device.name,
