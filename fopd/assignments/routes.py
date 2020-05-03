@@ -253,17 +253,18 @@ def update_assignment(teacher_id, assignment_id):
     student_ids = assignment_info.get('student_ids', [])
 
     for student_id in student_ids:
-        student = Student.query.filter_by(public_id = student_id)
+        student = Student.query.filter_by(public_id = student_id).first()
 
         if student:
-            assignment.students.append(student)
+            # assignment.students.append(student)
 
-            student_list.append({
+            output = {
                 'fname': student.fname,
                 'lname': student.lname,
-                'id': student.public_id,
-                'username': student.username
-            })
+                'username': student.username,
+                'id': student.public_id
+            }
+            student_list.append(output)
 
     try:
         db.session.add(assignment)
