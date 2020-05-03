@@ -1,5 +1,9 @@
 import requests, datetime, json, time, os
 
+TIMEOUT = 600213
+TOOMANYREDIRECTS = 31321
+
+
 class HttpService(object):
    LOGIN_URL = "https://fop1.urbanspacefarms.com:5000/api/login"
    LOGOUT_URL = "https://fop1.urbanspacefarms.com:5000/api/logout"
@@ -13,15 +17,38 @@ class HttpService(object):
       self.cookieJar = None
       self.login()
 
-   def login(self, url = LOGIN_URL):
+   def _get_credentials(self):
+      """return default login credentials"""
+      return "{\n\t\"username\": \"sludev\",\n\t\"password\": \"football76fire\"\n}"
+
+   def login(self, url = LOGIN_URL, credentials = None):
       #self.session.headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"
-      credentials = "{\n\t\"username\": \"sludev\",\n\t\"password\": \"football76fire\"\n}"
+      if not credentials:
+         credentials = self._get_credentials()
+
       header = {
          "Content-Type": "application/x-www-form-urlencoded"
       }
-      response = self.session.post(url, data = credentials, headers = header)
-      self.cookieJar = self.session.cookies
-      #print(self.cookieJar.get_dict())
+
+      try:
+         response = self.session.post(url, data = credentials, headers = header)
+         self.cookieJar = self.session.cookies
+         # print(self.cookieJar.get_dict())
+         return {
+            'session': self.cookieJar.get_dict().get('session'),
+            'logged_in': response.json()['logged_in'],
+            'organizations': response.json()['organizations']
+         }
+      except requests.exceptions.Timeout as e:
+         print(e)
+         return TIMEOUT
+      except requests.exceptions.TooManyRedirects as ex:
+         print(ex)
+         return TOOMANYREDIRECTS
+      except requests.exceptions.RequestException as exy:
+         print(exy)
+         return None
+      
 
    def _validateDate(self, startDate, endDate):
       start = startDate.split("-")
@@ -69,7 +96,7 @@ class HttpService(object):
       response = self.session.get(url, data = payload, cookies = self.cookieJar, headers = header)
       #print(response)
       response.encoding = self.ENCODING
-      return response.json()
+      return response.json(), response.status_code, response.reason
 
    def getImage(self, deviceId, ts = None, url = IMAGE_URL, filename = 'testfile.png'):
       if not ts:
@@ -88,5 +115,7 @@ class HttpService(object):
 if __name__ == "__main__":
    http = HttpService()
    #http.login()
-   #res = http.getObservations("8a0118e3-a6bf-4ace-85c4-a7c824da3f0c", "2020-01-23", "2020-01-24")
-   http.getImage(deviceId = "8a0118e3-a6bf-4ace-85c4-a7c824da3f0c", ts = 1583192407261)
+   res, status_code, reason = http.getObservations("8a0118e3-a6bf-4ace-85c4-a7c824da3f0c", "2020-01-23", "2020-01-24")
+   print(res[0], status_code, reason)
+   #http.getImage(deviceId = "8a0118e3-a6bf-4ace-85c4-a7c824da3f0c", ts = 1583192407261)
+   #print('Session cookie =', http.login())

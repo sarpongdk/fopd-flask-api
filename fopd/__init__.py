@@ -30,6 +30,7 @@ def create_app(config_object = Config):
     from fopd.assignment_responses.routes import assignment_responses
     from fopd.devices.routes import devices
     from fopd.observations.routes import observations
+    from fopd.external.routes import externals
 
     app.register_blueprint(students)
     app.register_blueprint(teachers)
@@ -39,6 +40,7 @@ def create_app(config_object = Config):
     app.register_blueprint(assignment_responses)
     app.register_blueprint(devices)
     app.register_blueprint(observations)
+    app.register_blueprint(externals)
 
     return app
 
