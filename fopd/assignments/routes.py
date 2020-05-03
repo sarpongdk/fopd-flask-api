@@ -24,8 +24,6 @@ def get_all_student_assignments(student_id):
     assignments = student.assignments
     assignment_output = []
     for assignment in assignments:
-
-
         output = {
             'id': assignment.public_id,
             'title': assignment.title,
@@ -40,7 +38,7 @@ def get_all_student_assignments(student_id):
         'status': 'success',
         'length': len(assignment_output),
         'assignments': assignments,
-        'student': {
+        'assignees': {
             'fname': student.fname,
             'lname': student.lname,
             'id': student.public_id,
@@ -64,12 +62,23 @@ def get_all_teacher_assignments(teacher_id):
     assignment_output = []
     for assignment in assignments:
 
+        students_output = []
+        for student in assignment.students:
+            students_output.append({
+                'fname': student.fname,
+                'lname': student.lname,
+                'id': student.public_id,
+                'username': student.username
+            })
+
         output = {
             'id': assignment.public_id,
             'title': assignment.title,
             'description': assignment.description,
             'type': assignment.type,
-            'due_date': str(assignment.due_date)
+            'due_date': str(assignment.due_date),
+            'assignees': students_output,
+            'num_assignees': len(students_output)
         }
     
         assignment_output.append(output)
@@ -78,7 +87,7 @@ def get_all_teacher_assignments(teacher_id):
         'status': 'success',
         'length': len(assignment_output),
         'assignments': assignment_output,
-        'student': {
+        'teacher': {
             'fname': teacher.fname,
             'lname': teacher.lname,
             'id': teacher.public_id,
@@ -116,8 +125,8 @@ def get_assignment_by_id(assignment_id):
 
     return jsonify({
         'status': 'success',
-        'num_students': len(students),
-        'students': students,
+        'num_assignees': len(students),
+        'assignees': students,
         'teacher': teacher,
         'assignment': {
             'id': assignment.public_id,
@@ -184,8 +193,8 @@ def create_assignment(teacher_id):
                 'type': assignment.type,
                 'due_date': str(assignment.due_date)
             }, 
-            'students': student_list,
-            'num_students': len(student_list),
+            'assignees': student_list,
+            'num_assignees': len(student_list),
             'teacher': {
                 'fname': teacher.fname,
                 'lname': teacher.lname,
@@ -234,7 +243,7 @@ def update_assignment(teacher_id, assignment_id):
 
     title = assignment_info.get('title', None)
     description = assignment_info.get('description', None)
-    type= assignment_info.get('type', None)
+    type = assignment_info.get('type', None)
     due_date = assignment_info.get('due_date', None)
 
     if title:
@@ -278,9 +287,9 @@ def update_assignment(teacher_id, assignment_id):
                 'description': assignment.description,
                 'type': assignment.type,
                 'due_date': str(assignment.due_date)
-            }, 
-            'students': student_list, # + assignment.students,
-            'num_students': len(student_list),
+            },
+            'assignees': student_list, # + assignment.students,
+            'num_assignees': len(student_list),
             'teacher': {
                 'fname': teacher.fname,
                 'lname': teacher.lname,

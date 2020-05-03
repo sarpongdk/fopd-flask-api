@@ -11,7 +11,7 @@ SUCCESS_CODE = 200
 
 http = HttpService()
 
-@externals.route('/api/external/login', method = ['POST'])
+@externals.route('/api/external/login', methods = ['POST'])
 def get_login_credentials():
     """gets login credentials for the fopd api"""
     credentials = request.json
