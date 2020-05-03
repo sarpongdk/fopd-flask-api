@@ -232,49 +232,38 @@ def update_assignment(teacher_id, assignment_id):
             'message': f'No assignment information provided to update assignment `{assignment_id}`'
         }), ERROR_CODE
 
-    assignment = Assignment(
-        title = assignment_info['title'],
-        description = assignment_info['description'],
-        type = assignment_info['type'],
-        due_date = assignment_info.get('due_date', datetime.datetime.utcnow()),
-        public_id = str(uuid.uuid4())
-    )  
+    title = assignment_info.get('title', None)
+    description = assignment_info.get('description', None)
+    type= assignment_info.get('type', None)
+    due_date = assignment_info.get('due_date', None)
 
+    if title:
+        assignment.title = title
+
+    if type:
+        assignment.type = type
+
+    if description:
+        assignment.description = description
+
+    if due_date:
+        assignment.due_date = due_date
 
     student_list = []
-    student_usernames = assignment_info.get('student_usernames', [])
-    student_list_change = False
-    old_student_list = assignment.students
-    formatted_old_student_list = []
+    student_ids = assignment_info.get('student_ids', [])
 
-    for student in old_student_list:
-        formatted_old_student_list.append({
-            'fname': student.fname,
-            'lname': student.lname,
-            'id': student.public_id,
-            'username': student.username
-        })
+    for student_id in student_ids:
+        student = Student.query.filter_by(public_id = student_id)
 
-    for student_username in student_usernames:
-        student = Student.query.filter_by(username = student_username)
+        if student:
+            assignment.students.append(student)
 
-        if student not in old_student_list:
-            student_list_change = True
-            break;
-
-    if student_list_change:
-        for student_username in student_usernames:
-            student = Student.query.filter_by(username = student_username)
-
-            if student:
-                assignment.students.append(student)
-
-                student_list.append({
-                    'fname': student.fname,
-                    'lname': student.lname,
-                    'id': student.public_id,
-                    'username': student.username
-                })
+            student_list.append({
+                'fname': student.fname,
+                'lname': student.lname,
+                'id': student.public_id,
+                'username': student.username
+            })
 
     try:
         db.session.add(assignment)
@@ -289,7 +278,7 @@ def update_assignment(teacher_id, assignment_id):
                 'type': assignment.type,
                 'due_date': assignment.due_date
             }, 
-            'students': student_list if student_list_change else formatted_old_student_list,
+            'students': student_list, # + assignment.students,
             'num_students': len(student_list),
             'teacher': {
                 'fname': teacher.fname,

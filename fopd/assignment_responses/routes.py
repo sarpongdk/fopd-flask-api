@@ -120,9 +120,14 @@ def update_student_response(assignment_id, student_id, assignment_response_id):
             'message': f'No data passed to update assignment response id `{assignment_response_id}`'
         }), ERROR_CODE
 
-    assignment_response.response = assignment_info.get('response', '')
-    assignment_response.comments = assignment_info.get('comments', '')
-    assignment_response.submitted = datetime.datetime.utcnow()
+    new_response = assignment_info.get('response', None)
+    if new_response:
+        assignment_response.response = assignment_info.get('response', '')
+        assignment_response.submitted = datetime.datetime.utcnow()
+
+    new_comments = assignment_info.get('comments', '')
+    if new_comments:
+        assignment_response.comments = assignment_info.get('comments', '')
 
     try:
         db.session.add(assignment_response)

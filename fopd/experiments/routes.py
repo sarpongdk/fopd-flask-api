@@ -265,12 +265,12 @@ def update_experiment(teacher_id, experiment_id):
             'message': f'No experiment information provided to update experiment `{experiment_id}`'
         }), ERROR_CODE
 
-    student_usernames = experiment_info.get('student_usernames', [])
+    student_ids = experiment_info.get('student_ids', [])
 
     experiment.students = []
     student_output = []
-    for student_username in student_usernames:
-        student = Student.query.filter_by(username = student_username).first()
+    for student_id in student_ids:
+        student = Student.query.filter_by(public_id = student_id).first()
 
         if student:
             # student.experiments.append(experiment)

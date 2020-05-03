@@ -315,7 +315,9 @@ def update_course(course_id, teacher_id):
     #         'message': 'Unable to update course information'
     #     }), ERROR_CODE
 
-    course.name = course_info['name']
+    name = course_info.get('name', None)
+    if name:
+        course.name = course_info['name']
     
     try:
         db.session.add(course)
