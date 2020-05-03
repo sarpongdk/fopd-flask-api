@@ -177,7 +177,7 @@ def delete_course_by_teacher(course_id, teacher_id):
         }), ERROR_CODE
 
 
-@courses.route('/api/course/', methods = ['POST'])
+@courses.route('/api/course', methods = ['POST'])
 def register_course():
     course_info = request.json
 
