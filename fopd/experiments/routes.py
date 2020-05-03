@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 
 from fopd import db, bcrypt
-from fopd.models import Student, Teacher, Experiment
+from fopd.models import Student, Teacher, Experiment, Device
 
 import uuid, datetime
 
@@ -168,12 +168,27 @@ def create_experiment(teacher_id):
             'message': 'No experiment information provided'
         }), ERROR_CODE
 
+    device_id = experiment_info.get('device_id', None)
+    if not device_id:
+        return jsonify({
+            'status': 'fail',
+            'message': 'Cannot create experiment without a device'
+        }), ERROR_CODE
+
+    device = Device.query.filter_by(public_id = device_id)
+    if not device:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Device id `{device_id} does not exist`'
+        }), ERROR_CODE
+
     experiment = Experiment(
         title = experiment_info.get('title', 'No title'),
         description = experiment_info.get('description', 'No description'),
         plant = experiment_info['plant'],
         public_id = str(uuid.uuid4()),
-        start_date = experiment_info.get('start_date', datetime.datetime.utcnow())
+        start_date = experiment_info.get('start_date', datetime.datetime.utcnow()),
+        device = device
     )
     experiment.teacher = teacher
 
