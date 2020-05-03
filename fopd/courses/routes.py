@@ -30,7 +30,7 @@ def get_teacher_courses(teacher_id):
                 'fname': student.fname,
                 'lname': student.lname,
                 'username': student.username,
-                'public_id': student.public_id
+                'id': student.public_id
             }
             students.append(student_output)
         
@@ -202,7 +202,7 @@ def register_course():
         public_id = str(uuid.uuid4())
     )
 
-    student_usernames = course.get('student_username', [])
+    student_usernames = course_info.get('student_username', [])
 
     course.teacher = teacher
 
