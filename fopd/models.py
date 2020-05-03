@@ -52,6 +52,7 @@ class Student(db.Model):
 
     assignments = db.relationship('Assignment', secondary = student_assignments, lazy = 'subquery', backref = db.backref('students', lazy = True))
     assignment_responses = db.relationship('AssignmentResponse', backref = 'student', lazy = True, cascade = 'all, delete-orphan')
+    observation_responses = db.relationship('ObservationResponse', backref = 'student', lazy = True, cascade = 'all, delete-orphan')
     experiments = db.relationship('Experiment', secondary = student_experiments, lazy = 'subquery', backref = db.backref('students', lazy = True))
     # experiments = db.relationship('Experiment', backref = )
 
@@ -170,3 +171,13 @@ class Observation(db.Model):
 
     experiment_id = db.Column(db.Integer, db.ForeignKey('experiment.id'), nullable = False)
     student_collaborators = db.relationship('Student', secondary = collaborators, lazy = 'subquery', backref = db.backref('observations', lazy = True))
+
+class ObservationResponse(db.Model):
+    __tablename__ = 'observation_response'
+
+    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    response = db.Column(db.Text)
+    submitted = db.Column(db.Date, nullable = False, default = datetime.date.today)
+    editable = db.Column(db.Boolean, nullable = False, default = True)
+
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable = False)

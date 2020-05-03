@@ -61,6 +61,8 @@ def get_login_credentials():
 def get_observations(device_id, start_date, end_date):
     """get observations from fopd server, dates should be in the format YYYY-MM-DD"""
     observations, status_code, reason = http.getObservations(device_id, start_date, end_date)
+    if observations[0] == 'N':
+        observations = []
 
     if status_code / 100 != 2:
         return jsonify({

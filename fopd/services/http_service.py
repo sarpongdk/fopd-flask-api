@@ -115,7 +115,7 @@ class HttpService(object):
 if __name__ == "__main__":
    http = HttpService()
    #http.login()
-   res, status_code, reason = http.getObservations("8a0118e3-a6bf-4ace-85c4-a7c824da3f0c", "2020-01-23", "2020-01-24")
+   res, status_code, reason = http.getObservations("8a0118e3-a6bf-4ace-85c4-a7c824da3f0c", "2020-05-01", "2020-05-03")
    print(res[0], status_code, reason)
    #http.getImage(deviceId = "8a0118e3-a6bf-4ace-85c4-a7c824da3f0c", ts = 1583192407261)
    #print('Session cookie =', http.login())
