@@ -175,7 +175,7 @@ def create_experiment(teacher_id):
             'message': 'Cannot create experiment without a device'
         }), ERROR_CODE
 
-    device = Device.query.filter_by(public_id = device_id)
+    device = Device.query.filter_by(public_id = device_id).first()
     if not device:
         return jsonify({
             'status': 'fail',
@@ -187,10 +187,10 @@ def create_experiment(teacher_id):
         description = experiment_info.get('description', 'No description'),
         plant = experiment_info['plant'],
         public_id = str(uuid.uuid4()),
-        start_date = experiment_info.get('start_date', datetime.datetime.utcnow()),
-        device = device
+        start_date = experiment_info.get('start_date', datetime.datetime.utcnow())
     )
     experiment.teacher = teacher
+    experiment.device = device
 
     student_ids = experiment_info.get('student_ids', [])
 
