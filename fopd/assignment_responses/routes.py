@@ -60,6 +60,7 @@ def get_all_responses_by_assignment(assignment_id):
             'id': response.public_id,
             'submitted': str(response.submitted),
             'comments': response.comments or '',
+            'response': response.response,
             'student': {
                 'fname': response.student.fname,
                 'lname': response.student.lname,
