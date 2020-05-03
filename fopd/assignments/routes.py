@@ -77,7 +77,7 @@ def get_all_teacher_assignments(teacher_id):
     return jsonify({
         'status': 'success',
         'length': len(assignment_output),
-        'assignments': assignments,
+        'assignments': assignment_output,
         'student': {
             'fname': teacher.fname,
             'lname': teacher.lname,
