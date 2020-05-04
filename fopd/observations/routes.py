@@ -318,7 +318,7 @@ def add_observation_response(observation_id):
         response = info.get('response', ''),
         public_id = str(uuid.uuid4()),
         submitted = info.get('submitted', datetime.date.today()),
-        editable = True
+        editable = info.get('editable', True)
     )
 
     response.observation = observation
