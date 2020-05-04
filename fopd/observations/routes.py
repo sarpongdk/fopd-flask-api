@@ -145,7 +145,7 @@ def create_observation():
             'message': f'No student collaborator information provided'
         }), ERROR_CODE  
 
-    experiment = Experiment.query.filter_by(public_id = experiment_id)
+    experiment = Experiment.query.filter_by(public_id = experiment_id).first()
     student_collaborators = []
 
     collaborators_output = []
