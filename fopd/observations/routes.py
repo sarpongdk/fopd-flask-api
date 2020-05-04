@@ -300,18 +300,19 @@ def add_observation_response(observation_id):
         }), ERROR_CODE
 
     student_id = info.get('student_id', None)
-    if not student_id:
-        return jsonify({
-            'status': 'fail',
-            'message': 'No student id provided'
-        }), ERROR_CODE
+    # if not student_id:
+    #     return jsonify({
+    #         'status': 'fail',
+    #         'message': 'No student id provided'
+    #     }), ERROR_CODE
 
-    student = Student.query.filter_by(public_id = student_id).first()
-    if not student:
-        return jsonify({
-            'status': 'fail',
-            'message': f'Account id `{student_id}` does not exist'
-        }), ERROR_CODE
+    if student_id:
+        student = Student.query.filter_by(public_id = student_id).first()
+        if not student:
+            return jsonify({
+                'status': 'fail',
+                'message': f'Account id `{student_id}` does not exist'
+            }), ERROR_CODE
 
     response = ObservationResponse(
         response = info.get('response', ''),
@@ -321,7 +322,9 @@ def add_observation_response(observation_id):
     )
 
     response.observation = observation
-    response.student = student
+
+    if student_id:
+        response.student = student
 
     try:
         db.session.add(response)

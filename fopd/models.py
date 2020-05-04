@@ -183,5 +183,5 @@ class ObservationResponse(db.Model):
     editable = db.Column(db.Boolean, nullable = False, default = True)
     public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
 
-    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable = False)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
     observation_id = db.Column(db.Integer, db.ForeignKey('observation.id'), nullable = False)
