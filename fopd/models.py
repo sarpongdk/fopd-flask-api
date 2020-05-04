@@ -136,8 +136,8 @@ class AssignmentResponse(db.Model):
     __tablename__ = 'assignment_responses'
 
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
-    response = db.Column(db.Text, nullable = False, default = '')
-    submitted = db.Column(db.Date, nullable = True)
+    response = db.Column(db.Text, default = '')
+    submitted = db.Column(db.Date)
     comments = db.Column(db.Text, default = '')
     public_id = db.Column(db.String(100), unique = True, default = str(uuid.uuid4()))
 
