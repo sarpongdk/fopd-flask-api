@@ -160,7 +160,6 @@ def create_assignment(teacher_id):
         type = assignment_info['type'],
         due_date = str(assignment_info.get('due_date', datetime.date.today())),
         public_id = str(uuid.uuid4()),
-        submitted = assignment_info.get('submitted', None)
     )  
 
     assignment.teacher = teacher

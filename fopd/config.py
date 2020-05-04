@@ -3,7 +3,7 @@ import os, dotenv, uuid
 basedir = os.path.abspath(os.path.dirname(__file__))
 ENV_PATH = os.path.join(basedir, '.env')
 
-print('Path to `.env` file:', ENV_PATH)
+# print('Path to `.env` file:', ENV_PATH)
 
 dotenv.load_dotenv(verbose = True, dotenv_path = ENV_PATH)
 
