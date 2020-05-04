@@ -381,6 +381,39 @@ def delete_observation_response(observation_id, response_id):
             'message': f'Unable to delete observation response id `{response_id}`'
         }), ERROR_CODE
 
+@observations.route('/api/observation/<observation_id>/response/<response_id>', methods = ['GET'])
+def get_observation_response_by_id(response_id):
+    observation = Observation.query.filter_by(public_id = observation_id).first()
+    if not observation:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Observation id `{observation_id}` does not exist'
+        }), ERROR_CODE
+
+    response = ObservationResponse.query.filter_by(public_id = response_id).first()
+    if not response:
+        return jsonify({
+            'status': 'fail',
+            'message': f'Observation response id `{response_id}` does not exist'
+        }), ERROR_CODE
+
+    return jsonify({
+        'status': 'success',
+        'response': {
+            'id': response.public_id,
+            'editable': response.editable,
+            'response': response.response,
+            'number': response.id,
+            'submitted': str(response.submitted),
+            'student': {
+                'id': response.student.public_id,
+                'fname': response.student.fname,
+                'lname': response.student.lname,
+                'username': response.student.username
+            }
+        }
+    }), SUCCESS_CODE
+
 @observations.route('/api/observation/<observation_id>/response/<response_id>', methods = ['PUT', 'POST'])
 def update_observation_response_lock(observation_id, response_id):
     observation = Observation.query.filter_by(public_id = observation_id).first()
