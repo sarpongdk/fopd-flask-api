@@ -382,7 +382,7 @@ def delete_observation_response(observation_id, response_id):
         }), ERROR_CODE
 
 @observations.route('/api/observation/<observation_id>/response/<response_id>', methods = ['GET'])
-def get_observation_response_by_id(response_id):
+def get_observation_response_by_id(observation_id, response_id):
     observation = Observation.query.filter_by(public_id = observation_id).first()
     if not observation:
         return jsonify({
