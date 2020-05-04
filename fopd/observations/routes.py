@@ -348,7 +348,8 @@ def add_observation_response(observation_id):
         print(e)
         return jsonify({
             'status': 'fail',
-            'message': 'Unable to create observation response'
+            'message': 'Unable to create observation response',
+            'error': e.message
         }), ERROR_CODE
 
 def update_observation_response(observation_id, student_id, response_id):
