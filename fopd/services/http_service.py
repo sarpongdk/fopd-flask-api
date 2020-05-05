@@ -31,7 +31,7 @@ class HttpService(object):
       }
 
       try:
-         response = self.session.post(url, data = credentials, headers = header)
+         response = self.session.post(url, data = credentials, headers = header, verify = False)
          self.cookieJar = self.session.cookies
          # print(self.cookieJar.get_dict())
          return {
@@ -93,7 +93,8 @@ class HttpService(object):
 
       payload = {}
       url = url % (deviceId, startDate, endDate)
-      response = self.session.get(url, data = payload, cookies = self.cookieJar, headers = header)
+      response = self.session.get(url, data = payload, cookies = self.cookieJar, headers = header, verify = False)
+      # print(response.json())
       #print(response)
       response.encoding = self.ENCODING
       return response.json(), response.status_code, response.reason
